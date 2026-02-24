@@ -71,7 +71,14 @@
     
     var dh = '';
     for (var j = 0; j < dp.length; j++) {
-        var line = dp[j].replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+        var linkTarget = function(url) {
+            return /divineamuleto\.com/i.test(url) ? '' : ' target="_blank" rel="noopener"';
+        };
+        var line = dp[j]
+            .replace(/(https?:\/\/[^\s<]+)/g, function(m) { return '<a href="' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
+            .replace(/(?<![\/\w"'])(www\.[^\s<]+)/gi, function(m) { return '<a href="https://' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
+            .replace(/(?<![\/\w"'.])([A-Z][A-Z0-9-]+\.(?:COM|ORG|NET|CO))\b/g, function(m) { return '<a href="https://' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
+            .replace(/@(\w+)/g, '<a href="https://instagram.com/$1" target="_blank" rel="noopener">@$1</a>');
         var trimmedLine = dp[j].trim();
         var isHeader = headerPatterns.test(trimmedLine);
         var isChapterItem = /^\d{1,2}:\d{2}/.test(trimmedLine) || /^\(\d{1,2}:\d{2}/.test(trimmedLine);
@@ -138,7 +145,7 @@
                 '<!-- Listen Button -->\n' + listenButton + '\n\n' +
                 '<!-- Description -->\n' + dh + '\n\n' +
                 '<!-- Audio Player -->\n<div style="margin-top:30px;margin-bottom:30px;">\n<iframe title="Libsyn Player" style="border:none;width:100%;height:192px;" src="' + eu + '" allowfullscreen></iframe>\n</div>\n\n' +
-                '<!-- CTA -->\n<div style="background:linear-gradient(135deg,#2d2a26 0%,#4a4540 100%);padding:30px;border-radius:8px;text-align:center;color:white;margin-top:40px;">\n<h3 style="margin-top:0;color:#d49633;">Continue Your Journey</h3>\n<p style="margin-bottom:20px;">Explore our collection of high-frequency spiritual jewelry, designed to anchor you in your highest self.</p>\n<a href="/collections/all" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;padding:12px 30px;background:#b78749;color:white;text-decoration:none;border-radius:50px;font-family:New York,Iowan Old Style,Apple Garamond,Baskerville,Times New Roman,serif;font-size:15px;font-weight:500;letter-spacing:.02em;text-transform:uppercase;">Shop the Collection</a>\n</div>';
+                '<!-- CTA -->\n<div style="background:#ece7e0;padding:50px 40px;text-align:center;color:#2d2a26;margin-top:40px;">\n<h3 style="margin-top:0;font-family:New York,Iowan Old Style,Apple Garamond,Baskerville,Times New Roman,serif;font-size:1.8rem;font-weight:700;color:#2d2a26;margin-bottom:20px;">Begin Your Transformation</h3>\n<p style="margin-bottom:28px;max-width:550px;margin-left:auto;margin-right:auto;color:#4a4540;line-height:1.7;">Ready to experience the power of intentional, high-frequency jewelry? Each Amuleto is designed to hold and amplify your meditation practice, created with sacred geometry and mindful craftsmanship.</p>\n<a href="/collections/all" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;padding:14px 32px;background:#2d2a26;color:white;text-decoration:none;border-radius:50px;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;">Explore Collection</a>\n</div>';
             
             var esc = ch.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
             
