@@ -204,6 +204,7 @@
 
             var dh = '';
             var inListGroup = false;
+            var inBulletGroup = false;
             for (var j = 0; j < dp.length; j++) {
                 // First: convert "Label: URL" lines into linked text (e.g. "💜 Website: https://..." → linked "💜 Website")
                 var line = dp[j].trim();
@@ -253,11 +254,16 @@
                 var nextIsBulletLine = /^[•●▪]\s/.test(nextTrimmed);
                 var nextIsHeader = headerPatterns.test(nextTrimmed);
 
-                var isListItem = isChapterItem || isLinkLine || isBulletLine;
-                var nextIsListItem = nextIsChapterItem || nextIsLinkLine || nextIsBulletLine;
+                var isListItem = isChapterItem || isLinkLine;
+                var nextIsListItem = nextIsChapterItem || nextIsLinkLine;
 
                 if (isHeader) {
                     dh += '<p class="ycp-section-header"><strong>' + line + '</strong></p>\n';
+                } else if (isBulletLine) {
+                    var bulletText = line.replace(/^[•●▪]\s*/, '');
+                    if (!inBulletGroup) { dh += '<ul>\n'; inBulletGroup = true; }
+                    dh += '<li>' + bulletText + '</li>\n';
+                    if (!nextIsBulletLine) { dh += '</ul>\n'; inBulletGroup = false; }
                 } else if (isListItem) {
                     if (!inListGroup) { dh += '<p>'; inListGroup = true; }
                     else { dh += '<br>\n'; }
