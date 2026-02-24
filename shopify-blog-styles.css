@@ -30,7 +30,7 @@
 }
 
 /* Episode description — override .rte underlined links */
-.ycp-desc a {
+.rte .ycp-desc a {
   text-decoration: none;
 }
 .ycp-desc p {
