@@ -204,11 +204,21 @@
 
             var dh = '';
             for (var j = 0; j < dp.length; j++) {
-                var line = dp[j]
-                    .replace(/(https?:\/\/[^\s<]+)/g, function(m) { return '<a href="' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
-                    .replace(/(?<![\/\w"'])(www\.[^\s<]+)/gi, function(m) { return '<a href="https://' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
-                    .replace(/(?<![\/\w"'.])([A-Z][A-Z0-9-]+\.(?:COM|ORG|NET|CO))\b/g, function(m) { return '<a href="https://' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
-                    .replace(/@(\w+)/g, '<a href="https://instagram.com/$1" target="_blank" rel="noopener">@$1</a>');
+                // First: convert "Label: URL" lines into linked text (e.g. "💜 Website: https://..." → linked "💜 Website")
+                var line = dp[j];
+                var labelUrlMatch = line.match(/^(.+?):\s+(https?:\/\/[^\s]+)\s*$/);
+                if (labelUrlMatch) {
+                    var label = labelUrlMatch[1].trim();
+                    var url = labelUrlMatch[2];
+                    line = '<a href="' + url + '"' + linkTarget(url) + '>' + label + '</a>';
+                } else {
+                    // Standard URL/handle linking for non-label lines
+                    line = line
+                        .replace(/(https?:\/\/[^\s<]+)/g, function(m) { return '<a href="' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
+                        .replace(/(?<![\/\w"'])(www\.[^\s<]+)/gi, function(m) { return '<a href="https://' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
+                        .replace(/(?<![\/\w"'.])([A-Z][A-Z0-9-]+\.(?:COM|ORG|NET|CO))\b/g, function(m) { return '<a href="https://' + m + '"' + linkTarget(m) + '>' + m + '</a>'; })
+                        .replace(/@(\w+)/g, '<a href="https://instagram.com/$1" target="_blank" rel="noopener">@$1</a>');
+                }
                 var trimmedLine = dp[j].trim();
                 var isHeader = headerPatterns.test(trimmedLine);
                 var isChapterItem = /^\d{1,2}:\d{2}/.test(trimmedLine) || /^\(\d{1,2}:\d{2}/.test(trimmedLine);
