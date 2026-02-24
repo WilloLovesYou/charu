@@ -1,8 +1,5 @@
 (function() {
-    if (location.hostname.indexOf('libsyn.com') < 0) {
-        alert('Please run this on the Your Colorful Path Libsyn page:\nhttps://ad52c5cc-20e4-4770-8977-92695936dc6b.libsyn.com/');
-        return;
-    }
+    // Works from any page — fetches directly from the public Libsyn show page
 
     // Show loading overlay
     var overlay = document.createElement('div');
@@ -12,7 +9,7 @@
 
     var rssFeed = 'https://rss.libsyn.com/shows/521038/destinations/4475083.xml';
     var appleShowId = '1790327657';
-    var showBase = location.origin;
+    var showBase = 'https://ad52c5cc-20e4-4770-8977-92695936dc6b.libsyn.com';
 
     // Title case helper
     function toTitleCase(str) {
