@@ -196,7 +196,8 @@
             });
 
             // Header patterns - only match when keyword is at start after emoji/whitespace (no letters before keyword)
-            var headerPatterns = /^[^a-zA-Z]{0,10}(CHAPTERS?|CHAPTER LIST|GUEST|HOST|KEY TAKEAWAYS?|TOPICS?|ABOUT|CONNECT|LINKS|RESOURCES|SHOW NOTES?|IN THIS EPISODE|EPISODE HIGHLIGHTS?|EPISODE OVERVIEW|SUBSCRIBE)\b/i;
+            // Must end with optional colon/whitespace only (no full sentences)
+            var headerPatterns = /^[^a-zA-Z]{0,10}(CHAPTERS?|CHAPTER LIST|GUEST|HOST|KEY TAKEAWAYS?|TOPICS?|ABOUT|CONNECT|LINKS|RESOURCES|SHOW NOTES?|IN THIS EPISODE|EPISODE HIGHLIGHTS?|EPISODE OVERVIEW|SUBSCRIBE)\s*:?\s*$/i;
 
             var linkTarget = function(url) {
                 return /divineamuleto\.com/i.test(url) ? '' : ' target="_blank" rel="noopener"';
