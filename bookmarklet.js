@@ -211,12 +211,21 @@
                 if (labelUrlMatch) {
                     var label = labelUrlMatch[1].trim();
                     var url = labelUrlMatch[2];
-                    // Pull leading emoji/symbols outside the link so they don't get underlined
-                    var emojiPrefix = '';
-                    var linkText = label;
-                    var em = label.match(/^([^\x20-\x7E]+\s*)/);
-                    if (em) { emojiPrefix = em[1]; linkText = label.substring(em[1].length); }
-                    line = emojiPrefix + '<a href="' + url + '"' + linkTarget(url) + '>' + linkText + '</a>';
+                    // Instagram URLs → "Instagram: @handle" format
+                    var igHandle = url.match(/instagram\.com\/([a-zA-Z0-9_.]+)\/?$/);
+                    if (igHandle) {
+                        var emojiPrefix = '';
+                        var em = label.match(/^([^\x20-\x7E]+\s*)/);
+                        if (em) { emojiPrefix = em[1]; }
+                        line = emojiPrefix + 'Instagram: <a href="' + url + '"' + linkTarget(url) + '>@' + igHandle[1] + '</a>';
+                    } else {
+                        // Pull leading emoji/symbols outside the link so they don't get underlined
+                        var emojiPrefix = '';
+                        var linkText = label;
+                        var em = label.match(/^([^\x20-\x7E]+\s*)/);
+                        if (em) { emojiPrefix = em[1]; linkText = label.substring(em[1].length); }
+                        line = emojiPrefix + '<a href="' + url + '"' + linkTarget(url) + '>' + linkText + '</a>';
+                    }
                 } else {
                     // Standard URL/handle linking for non-label lines
                     line = line
