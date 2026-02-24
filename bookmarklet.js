@@ -17,10 +17,30 @@
     
     var en = (rawTitle.match(/^(\d+)/) || ['', ''])[1];
     
-    // Get description
-    var descEl = document.querySelector('.tox-content-wrapper') || 
+    // Get description - try multiple selectors for Libsyn's various page layouts
+    var descEl = document.querySelector('.tox-content-wrapper') ||
                  document.querySelector('.episode-description') ||
-                 document.querySelector('[data-testid="description"]');
+                 document.querySelector('[data-testid="description"]') ||
+                 document.querySelector('.episode_description') ||
+                 document.querySelector('.description') ||
+                 document.querySelector('.episode-detail__description') ||
+                 document.querySelector('.show-notes') ||
+                 document.querySelector('[class*="description"]') ||
+                 document.querySelector('[class*="Description"]');
+    // If still not found, try iframes (TinyMCE editor)
+    if (!descEl) {
+        var iframes = document.querySelectorAll('iframe');
+        for (var fi = 0; fi < iframes.length; fi++) {
+            try {
+                var iframeDoc = iframes[fi].contentDocument || iframes[fi].contentWindow.document;
+                var iframeBody = iframeDoc.querySelector('body');
+                if (iframeBody && iframeBody.innerText.trim().length > 50) {
+                    descEl = iframeBody;
+                    break;
+                }
+            } catch(e) {}
+        }
+    }
     var d = descEl ? descEl.innerText : '';
     
     // Extract YouTube video if present
