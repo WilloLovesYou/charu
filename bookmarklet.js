@@ -195,8 +195,8 @@
                 return true;
             });
 
-            // Header patterns - handle emoji prefixes (up to ~10 chars for multi-byte emoji + space)
-            var headerPatterns = /^.{0,10}(CHAPTERS?|CHAPTER LIST|GUEST|HOST|KEY TAKEAWAYS?|TOPICS?|ABOUT|CONNECT|LINKS|RESOURCES|SHOW NOTES?|IN THIS EPISODE|EPISODE HIGHLIGHTS?|SUBSCRIBE)\b/i;
+            // Header patterns - only match when keyword is at start after emoji/whitespace (no letters before keyword)
+            var headerPatterns = /^[^a-zA-Z]{0,10}(CHAPTERS?|CHAPTER LIST|GUEST|HOST|KEY TAKEAWAYS?|TOPICS?|ABOUT|CONNECT|LINKS|RESOURCES|SHOW NOTES?|IN THIS EPISODE|EPISODE HIGHLIGHTS?|SUBSCRIBE)\b/i;
 
             var linkTarget = function(url) {
                 return /divineamuleto\.com/i.test(url) ? '' : ' target="_blank" rel="noopener"';
@@ -205,7 +205,7 @@
             var dh = '';
             for (var j = 0; j < dp.length; j++) {
                 // First: convert "Label: URL" lines into linked text (e.g. "💜 Website: https://..." → linked "💜 Website")
-                var line = dp[j];
+                var line = dp[j].trim();
                 var labelUrlMatch = line.match(/^(.+?):\s+(https?:\/\/[^\s]+)\s*$/);
                 if (labelUrlMatch) {
                     var label = labelUrlMatch[1].trim();
