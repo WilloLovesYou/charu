@@ -238,12 +238,14 @@
                 var isHeader = headerPatterns.test(trimmedLine);
                 var isChapterItem = /^\d{1,2}:\d{2}/.test(trimmedLine) || /^\(\d{1,2}:\d{2}/.test(trimmedLine);
                 var nextIsChapterItem = (j < dp.length - 1) && (/^\d{1,2}:\d{2}/.test(dp[j+1].trim()) || /^\(\d{1,2}:\d{2}/.test(dp[j+1].trim()));
-                // Detect link-list lines: starts with emoji or bullet, contains URL or @handle
-                var isLinkLine = /^[\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF•●▪]/.test(trimmedLine) &&
-                    (/https?:\/\/|www\.|@\w|\.com|\.org|\.net/i.test(trimmedLine));
+                // Detect link-list lines: starts with emoji/bullet + has URL/@handle, OR is a "Label: @handle" line
+                var hasLinkContent = /https?:\/\/|www\.|@\w|\.com|\.org|\.net/i.test(trimmedLine);
+                var isLinkLine = (/^[\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF•●▪]/.test(trimmedLine) && hasLinkContent) ||
+                    /^[^:]+:\s+@\w+/.test(trimmedLine);
                 var nextTrimmed = (j < dp.length - 1) ? dp[j+1].trim() : '';
-                var nextIsLinkLine = /^[\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF•●▪]/.test(nextTrimmed) &&
-                    (/https?:\/\/|www\.|@\w|\.com|\.org|\.net/i.test(nextTrimmed));
+                var nextHasLink = /https?:\/\/|www\.|@\w|\.com|\.org|\.net/i.test(nextTrimmed);
+                var nextIsLinkLine = (/^[\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF•●▪]/.test(nextTrimmed) && nextHasLink) ||
+                    /^[^:]+:\s+@\w+/.test(nextTrimmed);
                 var nextIsHeader = headerPatterns.test(nextTrimmed);
 
                 var isListItem = isChapterItem || isLinkLine;
