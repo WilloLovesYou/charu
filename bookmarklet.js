@@ -217,7 +217,7 @@
                         var emojiPrefix = '';
                         var em = label.match(/^([^\x20-\x7E]+\s*)/);
                         if (em) { emojiPrefix = em[1]; }
-                        line = emojiPrefix + 'Instagram: <a href="' + url + '"' + linkTarget(url) + '>@' + igHandle[1] + '</a>';
+                        line = emojiPrefix + '<a href="' + url + '"' + linkTarget(url) + '>Instagram: @' + igHandle[1] + '</a>';
                     } else {
                         // Pull leading emoji/symbols outside the link so they don't get underlined
                         var emojiPrefix = '';
