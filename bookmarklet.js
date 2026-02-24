@@ -138,9 +138,23 @@
             if (!episodeArtwork && showArtwork) episodeArtwork = showArtwork;
 
             // Convert HTML description to plain text, preserving line breaks
-            var tempDiv = document.createElement('div');
-            tempDiv.innerHTML = rssDescription;
-            var d = tempDiv.innerText || tempDiv.textContent || '';
+            var rawHtml = rssDescription;
+            // Replace block/line-breaking elements with newlines BEFORE stripping tags
+            var d = rawHtml
+                .replace(/<br\s*\/?>/gi, '\n')
+                .replace(/<\/p>/gi, '\n\n')
+                .replace(/<\/div>/gi, '\n')
+                .replace(/<\/li>/gi, '\n')
+                .replace(/<[^>]+>/g, '')  // strip remaining HTML tags
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"')
+                .replace(/&#39;/g, "'")
+                .replace(/&nbsp;/g, ' ')
+                .replace(/\r\n/g, '\n')
+                .replace(/\n{3,}/g, '\n\n')  // collapse excessive blank lines
+                .trim();
 
             // Also try page DOM as fallback if RSS description is empty
             if (!d.trim()) {
