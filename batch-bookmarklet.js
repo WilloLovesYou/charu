@@ -140,7 +140,7 @@
     }
 
     // Process one RSS item into Shopify-ready data
-    function processEpisode(rssItem, itemId, showArtwork) {
+    function processEpisode(rssItem, itemId, showArtwork, ytLookup) {
         var titleEl = rssItem.querySelector('title');
         var rawTitle = titleEl ? titleEl.textContent.trim() : '';
         var epNumMatch = rawTitle.match(/^#?(\d+)\s*/);
@@ -237,10 +237,11 @@
             .replace(/\n{3,}/g, '\n\n')
             .trim();
 
-        // YouTube embed
+        // YouTube embed — check description first, then channel feed
         var ytMatch = d.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/) ||
                       rssDescription.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-        var ytEmbed = ytMatch ? '<div class="ycp-video-wrap"><iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen></iframe></div>' : '';
+        var ytVideoId = ytMatch ? ytMatch[1] : (en && ytLookup && ytLookup[en] ? ytLookup[en] : '');
+        var ytEmbed = ytVideoId ? '<div class="ycp-video-wrap"><iframe src="https://www.youtube.com/embed/' + ytVideoId + '" frameborder="0" allowfullscreen></iframe></div>' : '';
 
         // Clean description for excerpt/meta
         var cleanDesc = d.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
@@ -368,19 +369,38 @@
         };
     }
 
-    // Main: collect IDs, fetch RSS, process all
+    var ytChannelFeed = 'https://www.youtube.com/feeds/videos.xml?channel_id=UCzFbwY7hFNFIgTNpdUhFpgQ';
+
+    // Main: collect IDs, fetch RSS, fetch YouTube feed, process all
     Promise.all([
         collectEpisodeIds(),
-        fetch(rssFeed).then(function(r) { return r.text(); })
+        fetch(rssFeed).then(function(r) { return r.text(); }),
+        fetch(ytChannelFeed).then(function(r) { return r.text(); }).catch(function() { return ''; })
     ]).then(function(results) {
         var pageItems = results[0];
         var rssData = results[1];
+        var ytData = results[2];
 
         var parser = new DOMParser();
         var xml = parser.parseFromString(rssData, 'text/xml');
         var rssItems = xml.querySelectorAll('item');
         var showImage = xml.querySelector('channel > image > url') || xml.querySelector('channel image url');
         var showArtwork = showImage ? showImage.textContent.trim() : '';
+
+        // Build YouTube episode lookup from channel feed
+        var ytLookup = {};
+        if (ytData) {
+            var ytXml = parser.parseFromString(ytData, 'text/xml');
+            var ytEntries = ytXml.querySelectorAll('entry');
+            for (var yi = 0; yi < ytEntries.length; yi++) {
+                var ytTitle = ytEntries[yi].querySelector('title');
+                var ytVideoId = ytEntries[yi].getElementsByTagName('yt:videoId')[0];
+                if (ytTitle && ytVideoId) {
+                    var ytEpMatch = ytTitle.textContent.match(/^#?(\d+)\s/);
+                    if (ytEpMatch) ytLookup[ytEpMatch[1]] = ytVideoId.textContent.trim();
+                }
+            }
+        }
 
         // Build lookup: episode number → item_id
         var idLookup = {};
@@ -398,7 +418,7 @@
             var epNum = epMatch ? epMatch[1] : '';
             var itemId = epNum ? (idLookup[epNum] || '') : '';
 
-            var ep = processEpisode(rssItems[i], itemId, showArtwork);
+            var ep = processEpisode(rssItems[i], itemId, showArtwork, ytLookup);
             episodes.push(ep);
         }
 

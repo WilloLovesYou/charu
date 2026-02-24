@@ -97,11 +97,31 @@
     // RSS Feed URL and podcast IDs
     var rssFeed = 'https://rss.libsyn.com/shows/521038/destinations/4475083.xml';
     var appleShowId = '1790327657';
+    var ytChannelFeed = 'https://www.youtube.com/feeds/videos.xml?channel_id=UCzFbwY7hFNFIgTNpdUhFpgQ';
 
-    // Fetch RSS to get episode GUID, artwork, and full description
-    fetch(rssFeed)
-        .then(function(response) { return response.text(); })
-        .then(function(rssData) {
+    // Fetch RSS and YouTube channel feed
+    Promise.all([
+        fetch(rssFeed).then(function(r) { return r.text(); }),
+        fetch(ytChannelFeed).then(function(r) { return r.text(); }).catch(function() { return ''; })
+    ]).then(function(feeds) {
+        var rssData = feeds[0];
+        var ytData = feeds[1];
+
+        // Build YouTube episode lookup: episode number → video ID
+        var ytLookup = {};
+        if (ytData) {
+            var ytParser = new DOMParser();
+            var ytXml = ytParser.parseFromString(ytData, 'text/xml');
+            var ytEntries = ytXml.querySelectorAll('entry');
+            for (var yi = 0; yi < ytEntries.length; yi++) {
+                var ytTitle = ytEntries[yi].querySelector('title');
+                var ytVideoId = ytEntries[yi].getElementsByTagName('yt:videoId')[0];
+                if (ytTitle && ytVideoId) {
+                    var ytEpMatch = ytTitle.textContent.match(/^#?(\d+)\s/);
+                    if (ytEpMatch) ytLookup[ytEpMatch[1]] = ytVideoId.textContent.trim();
+                }
+            }
+        }
             var parser = new DOMParser();
             var xml = parser.parseFromString(rssData, 'text/xml');
             var items = xml.querySelectorAll('item');
@@ -164,10 +184,11 @@
                 if (s > -1 && e > -1) d = a.substring(s + 19, e).trim();
             }
 
-            // YouTube embed
+            // YouTube embed — check description first, then channel feed
             var ytMatch = d.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/) ||
                           rssDescription.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-            var ytEmbed = ytMatch ? '<div class="ycp-video-wrap"><iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen></iframe></div>' : '';
+            var ytVideoId = ytMatch ? ytMatch[1] : (en && ytLookup[en] ? ytLookup[en] : '');
+            var ytEmbed = ytVideoId ? '<div class="ycp-video-wrap"><iframe src="https://www.youtube.com/embed/' + ytVideoId + '" frameborder="0" allowfullscreen></iframe></div>' : '';
 
             // Clean description for excerpt/meta
             var cleanDesc = d.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
