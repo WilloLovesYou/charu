@@ -24,32 +24,55 @@
         });
     }
 
+    // Extract PAGE_DATA JSON from HTML using brace counting (handles nested objects)
+    function extractPageData(html) {
+        var marker = html.indexOf('window.PAGE_DATA');
+        if (marker === -1) return null;
+        var braceStart = html.indexOf('{', marker);
+        if (braceStart === -1) return null;
+        var depth = 0;
+        var inString = false;
+        var escaped = false;
+        for (var i = braceStart; i < html.length; i++) {
+            var ch = html[i];
+            if (escaped) { escaped = false; continue; }
+            if (ch === '\\' && inString) { escaped = true; continue; }
+            if (ch === '"') { inString = !inString; continue; }
+            if (inString) continue;
+            if (ch === '{' || ch === '[') depth++;
+            else if (ch === '}' || ch === ']') {
+                depth--;
+                if (depth === 0) {
+                    try { return JSON.parse(html.substring(braceStart, i + 1)); }
+                    catch(e) { return null; }
+                }
+            }
+        }
+        return null;
+    }
+
     // Collect episode IDs from paginated show pages
     function collectEpisodeIds() {
         var allItems = [];
 
-        // Page 1: read from current page's window.PAGE_DATA
+        // Try current page's window.PAGE_DATA first
         if (window.PAGE_DATA && window.PAGE_DATA.items) {
             window.PAGE_DATA.items.forEach(function(item) {
                 allItems.push({ item_id: item.item_id, item_title: item.item_title || '' });
             });
         }
 
-        // Fetch remaining pages
+        // Fetch a page and extract items
         function fetchPage(pageNum) {
             return fetch(showBase + '/page/' + pageNum + '/size/5')
                 .then(function(r) { return r.text(); })
                 .then(function(html) {
-                    var match = html.match(/window\.PAGE_DATA\s*=\s*(\{[\s\S]*?\});\s*<\/script>/);
-                    if (!match) return [];
-                    try {
-                        var data = JSON.parse(match[1]);
-                        if (data.items && data.items.length > 0) {
-                            return data.items.map(function(item) {
-                                return { item_id: item.item_id, item_title: item.item_title || '' };
-                            });
-                        }
-                    } catch(e) {}
+                    var data = extractPageData(html);
+                    if (data && data.items && data.items.length > 0) {
+                        return data.items.map(function(item) {
+                            return { item_id: item.item_id, item_title: item.item_title || '' };
+                        });
+                    }
                     return [];
                 })
                 .catch(function() { return []; });
@@ -60,7 +83,6 @@
             return fetchPage(pageNum).then(function(items) {
                 if (items.length === 0) return allItems;
                 items.forEach(function(item) {
-                    // Avoid duplicates
                     var exists = allItems.some(function(a) { return a.item_id === item.item_id; });
                     if (!exists) allItems.push(item);
                 });
@@ -69,7 +91,9 @@
             });
         }
 
-        return fetchAllPages(2);
+        // Start from page 1 if we didn't get anything from window.PAGE_DATA
+        var startPage = allItems.length > 0 ? 2 : 1;
+        return fetchAllPages(startPage);
     }
 
     // Process one RSS item into Shopify-ready data
