@@ -213,13 +213,26 @@
                 var isHeader = headerPatterns.test(trimmedLine);
                 var isChapterItem = /^\d{1,2}:\d{2}/.test(trimmedLine) || /^\(\d{1,2}:\d{2}/.test(trimmedLine);
                 var nextIsChapterItem = (j < dp.length - 1) && (/^\d{1,2}:\d{2}/.test(dp[j+1].trim()) || /^\(\d{1,2}:\d{2}/.test(dp[j+1].trim()));
+                // Detect link-list lines: starts with emoji or bullet, contains URL or @handle
+                var isLinkLine = /^[\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF•●▪]/.test(trimmedLine) &&
+                    (/https?:\/\/|www\.|@\w|\.com|\.org|\.net/i.test(trimmedLine));
+                var nextTrimmed = (j < dp.length - 1) ? dp[j+1].trim() : '';
+                var nextIsLinkLine = /^[\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF•●▪]/.test(nextTrimmed) &&
+                    (/https?:\/\/|www\.|@\w|\.com|\.org|\.net/i.test(nextTrimmed));
+                var nextIsHeader = headerPatterns.test(nextTrimmed);
 
                 if (isHeader) {
-                    dh += '<p style="margin-bottom:10px;margin-top:20px;"><strong>' + line + '</strong></p>\n';
+                    dh += '<p style="margin-bottom:10px;margin-top:25px;"><strong>' + line + '</strong></p>\n';
                 } else if (isChapterItem && !nextIsChapterItem) {
                     dh += line + '<br><br>\n';
                 } else if (isChapterItem || nextIsChapterItem) {
                     dh += line + '<br>\n';
+                } else if (isLinkLine && (nextIsLinkLine || nextIsHeader)) {
+                    // Single-space link list items
+                    dh += line + '<br>\n';
+                } else if (isLinkLine) {
+                    // Last link in a list — add spacing after
+                    dh += line + '<br><br>\n';
                 } else {
                     dh += '<p style="margin-bottom:15px;">' + line + '</p>\n';
                 }
@@ -240,7 +253,7 @@
                 '<!-- Listen Button -->\n' + listenButton + '\n\n' +
                 '<!-- Description -->\n' + dh + '\n\n' +
                 '<!-- Audio Player -->\n<div style="margin-top:30px;margin-bottom:30px;">\n<iframe title="Libsyn Player" style="border:none;width:100%;height:192px;" src="' + eu + '" allowfullscreen></iframe>\n</div>\n\n' +
-                '<!-- CTA -->\n<div style="background:#ece7e0;padding:50px 40px;text-align:center;color:#2d2a26;margin-top:40px;">\n<h3 style="margin-top:0;font-family:New York,Iowan Old Style,Apple Garamond,Baskerville,Times New Roman,serif;font-size:1.8rem;font-weight:700;color:#2d2a26;margin-bottom:20px;">Begin Your Transformation</h3>\n<p style="margin-bottom:28px;max-width:550px;margin-left:auto;margin-right:auto;color:#4a4540;line-height:1.7;">Ready to experience the power of intentional, high-frequency jewelry? Each Amuleto is designed to hold and amplify your meditation practice, created with sacred geometry and mindful craftsmanship.</p>\n<a href="/collections/all" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;padding:14px 32px;background:#2d2a26;color:white;text-decoration:none;border-radius:50px;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;">Explore Collection</a>\n</div>';
+                '<!-- CTA -->\n<div style="background:#ece7e0;padding:50px 40px;text-align:center;color:#2d2a26;margin-top:40px;">\n<h3 style="margin-top:0;font-family:New York,Iowan Old Style,Apple Garamond,Baskerville,Times New Roman,serif;font-size:1.8rem;font-weight:700;color:#2d2a26;margin-bottom:20px;">Continue Your Journey</h3>\n<p style="margin-bottom:28px;max-width:700px;margin-left:auto;margin-right:auto;color:#4a4540;line-height:1.7;">Ready to experience the power of intentional, high-frequency jewelry? Each Amuleto is designed to hold and amplify your meditation practice, created with sacred geometry and mindful craftsmanship.</p>\n<a href="/collections/all" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;padding:14px 32px;background:#2d2a26;color:white;text-decoration:none;border-radius:50px;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;">Explore Collection</a>\n</div>';
 
             var esc = ch.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
