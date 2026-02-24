@@ -29,10 +29,7 @@
   width: auto;
 }
 
-/* Episode description — override .rte underlined links */
-.rte .ycp-desc a {
-  text-decoration: none;
-}
+/* Episode description */
 .ycp-desc p {
   margin-bottom: 15px;
 }

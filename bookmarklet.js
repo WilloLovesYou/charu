@@ -210,7 +210,12 @@
                 if (labelUrlMatch) {
                     var label = labelUrlMatch[1].trim();
                     var url = labelUrlMatch[2];
-                    line = '<a href="' + url + '"' + linkTarget(url) + '>' + label + '</a>';
+                    // Pull leading emoji/symbols outside the link so they don't get underlined
+                    var emojiPrefix = '';
+                    var linkText = label;
+                    var em = label.match(/^([^\x20-\x7E]+\s*)/);
+                    if (em) { emojiPrefix = em[1]; linkText = label.substring(em[1].length); }
+                    line = emojiPrefix + '<a href="' + url + '"' + linkTarget(url) + '>' + linkText + '</a>';
                 } else {
                     // Standard URL/handle linking for non-label lines
                     line = line
