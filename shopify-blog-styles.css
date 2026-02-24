@@ -1,0 +1,91 @@
+/* ==========================================================================
+   Your Colorful Path — Blog Post Styles
+   Paste this into your Shopify app.css after the existing blog-post-detail styles
+   ========================================================================== */
+
+/* YouTube video embed (responsive 16:9) */
+.ycp-video-wrap {
+  margin: 30px 0;
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+}
+.ycp-video-wrap iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Listen on Your Favorite App button */
+.ycp-listen {
+  text-align: center;
+  margin: 25px 0;
+}
+.ycp-listen img {
+  height: 50px;
+  width: auto;
+}
+
+/* Episode description */
+.ycp-desc p {
+  margin-bottom: 15px;
+}
+
+/* Section headers (CHAPTERS, HOST, SUBSCRIBE, etc.) */
+.ycp-section-header {
+  margin-bottom: 10px;
+  margin-top: 25px;
+}
+
+/* Libsyn audio player */
+.ycp-audio {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+.ycp-audio iframe {
+  border: none;
+  width: 100%;
+  height: 192px;
+}
+
+/* Continue Your Journey CTA */
+.ycp-cta {
+  background: #ece7e0;
+  padding: 50px 40px;
+  text-align: center;
+  color: #2d2a26;
+  margin-top: 40px;
+}
+.ycp-cta h3 {
+  margin-top: 0;
+  font-family: "New York", "Iowan Old Style", "Apple Garamond", Baskerville, "Times New Roman", serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #2d2a26;
+  margin-bottom: 20px;
+}
+.ycp-cta p {
+  margin-bottom: 28px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+  color: #4a4540;
+  line-height: 1.7;
+}
+.ycp-cta a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 32px;
+  background: #2d2a26;
+  color: white;
+  text-decoration: none;
+  border-radius: 50px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}

@@ -167,7 +167,7 @@
             // YouTube embed
             var ytMatch = d.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/) ||
                           rssDescription.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-            var ytEmbed = ytMatch ? '<div style="margin:30px 0;position:relative;padding-bottom:56.25%;height:0;overflow:hidden;"><iframe style="position:absolute;top:0;left:0;width:100%;height:100%;" src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen></iframe></div>' : '';
+            var ytEmbed = ytMatch ? '<div class="ycp-video-wrap"><iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '" frameborder="0" allowfullscreen></iframe></div>' : '';
 
             // Clean description for excerpt/meta
             var cleanDesc = d.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
@@ -232,7 +232,7 @@
                 var nextIsHeader = headerPatterns.test(nextTrimmed);
 
                 if (isHeader) {
-                    dh += '<p style="margin-bottom:10px;margin-top:25px;"><strong>' + line + '</strong></p>\n';
+                    dh += '<p class="ycp-section-header"><strong>' + line + '</strong></p>\n';
                 } else if (isChapterItem && !nextIsChapterItem) {
                     dh += line + '<br><br>\n';
                 } else if (isChapterItem || nextIsChapterItem) {
@@ -244,7 +244,7 @@
                     // Last link in a list — add spacing after
                     dh += line + '<br><br>\n';
                 } else {
-                    dh += '<p style="margin-bottom:15px;">' + line + '</p>\n';
+                    dh += '<p>' + line + '</p>\n';
                 }
             }
 
@@ -253,17 +253,17 @@
             var podlinkPage = encodedGuid ? ('https://pod.link/' + appleShowId + '/episode/' + encodedGuid) : ('https://pod.link/' + appleShowId);
 
             // Listen button
-            var listenButton = '<div style="text-align:center;margin:25px 0;">' +
+            var listenButton = '<div class="ycp-listen">' +
                 '<a href="' + podlinkPage + '" target="_blank" rel="noopener">' +
-                '<img src="https://cdn.shopify.com/s/files/1/0870/3688/7345/files/Listen_on_Your_Favorite_App.png?v=1771919518" alt="Listen on Your Favorite App" style="height:50px;width:auto;">' +
+                '<img src="https://cdn.shopify.com/s/files/1/0870/3688/7345/files/Listen_on_Your_Favorite_App.png?v=1771919518" alt="Listen on Your Favorite App">' +
                 '</a></div>';
 
             // Content HTML
             var ch = (ytEmbed ? '<!-- YouTube Video -->\n' + ytEmbed + '\n\n' : '') +
                 '<!-- Listen Button -->\n' + listenButton + '\n\n' +
-                '<!-- Description -->\n' + dh + '\n\n' +
-                '<!-- Audio Player -->\n<div style="margin-top:30px;margin-bottom:30px;">\n<iframe title="Libsyn Player" style="border:none;width:100%;height:192px;" src="' + eu + '" allowfullscreen></iframe>\n</div>\n\n' +
-                '<!-- CTA -->\n<div style="background:#ece7e0;padding:50px 40px;text-align:center;color:#2d2a26;margin-top:40px;">\n<h3 style="margin-top:0;font-family:New York,Iowan Old Style,Apple Garamond,Baskerville,Times New Roman,serif;font-size:1.8rem;font-weight:700;color:#2d2a26;margin-bottom:20px;">Continue Your Journey</h3>\n<p style="margin-bottom:28px;max-width:700px;margin-left:auto;margin-right:auto;color:#4a4540;line-height:1.7;">Ready to experience the power of intentional, high-frequency jewelry? Each Amuleto is designed to hold and amplify your meditation practice, created with sacred geometry and mindful craftsmanship.</p>\n<a href="/collections/all" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;padding:14px 32px;background:#2d2a26;color:white;text-decoration:none;border-radius:50px;font-size:13px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;">Explore Collection</a>\n</div>';
+                '<!-- Description -->\n<div class="ycp-desc">\n' + dh + '</div>\n\n' +
+                '<!-- Audio Player -->\n<div class="ycp-audio">\n<iframe title="Libsyn Player" src="' + eu + '" allowfullscreen></iframe>\n</div>\n\n' +
+                '<!-- CTA -->\n<div class="ycp-cta">\n<h3>Continue Your Journey</h3>\n<p>Ready to experience the power of intentional, high-frequency jewelry? Each Amuleto is designed to hold and amplify your meditation practice, created with sacred geometry and mindful craftsmanship.</p>\n<a href="/collections/all" target="_blank" rel="noopener">Explore Collection</a>\n</div>';
 
             var esc = ch.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
