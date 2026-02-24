@@ -384,11 +384,6 @@
         var showImage = xml.querySelector('channel > image > url') || xml.querySelector('channel image url');
         var showArtwork = showImage ? showImage.textContent.trim() : '';
 
-        // Debug: show what was collected
-        var debugInfo = (pageItems._debugLog || []).join('\n');
-        var sampleItems = pageItems.slice(0, 3).map(function(it) { return it.item_id + ' = ' + it.item_title; }).join('\n');
-        alert('DEBUG (will remove once working)\n\nIDs collected: ' + pageItems.length + '\nSample:\n' + sampleItems + '\n\nLog:\n' + debugInfo);
-
         // Build lookup: episode number → item_id
         var idLookup = {};
         pageItems.forEach(function(item) {
