@@ -266,7 +266,7 @@
             return true;
         });
 
-        var headerPatterns = /^[^a-zA-Z]{0,10}(CHAPTERS?|CHAPTER LIST|GUEST|HOST|KEY TAKEAWAYS?|TOPICS?|ABOUT|CONNECT|LINKS|RESOURCES|SHOW NOTES?|IN THIS EPISODE|EPISODE HIGHLIGHTS?|EPISODE OVERVIEW|SUBSCRIBE)\s*:?\s*$/i;
+        var headerPatterns = /^[^a-zA-Z]{0,10}(CHAPTERS?|CHAPTER LIST|GUEST|HOST|KEY TAKEAWAYS?|TOPICS?|ABOUT|CONNECT|LINKS MENTIONED IN THE EPISODE|LINKS|RESOURCES|SHOW NOTES?|IN THIS EPISODE|EPISODE HIGHLIGHTS?|EPISODE OVERVIEW|SUBSCRIBE)\s*:?\s*$/i;
 
         var linkTarget = function(url) {
             return /divineamuleto\.com/i.test(url) ? '' : ' target="_blank" rel="noopener"';
@@ -306,13 +306,11 @@
             var isHeader = headerPatterns.test(trimmedLine);
             var isChapterItem = /^\d{1,2}:\d{2}/.test(trimmedLine) || /^\(\d{1,2}:\d{2}/.test(trimmedLine);
             var nextIsChapterItem = (j < dp.length - 1) && (/^\d{1,2}:\d{2}/.test(dp[j+1].trim()) || /^\(\d{1,2}:\d{2}/.test(dp[j+1].trim()));
-            var hasLinkContent = /https?:\/\/|www\.|@\w|\.com|\.org|\.net/i.test(trimmedLine);
-            var isLinkLine = (/^[\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF•●▪]/.test(trimmedLine) && hasLinkContent) ||
+            var isLinkLine = /^[\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF]/.test(trimmedLine) ||
                 /^[^:]+:\s+@\w+/.test(trimmedLine);
             var isBulletLine = /^[•●▪]\s/.test(trimmedLine);
             var nextTrimmed = (j < dp.length - 1) ? dp[j+1].trim() : '';
-            var nextHasLink = /https?:\/\/|www\.|@\w|\.com|\.org|\.net/i.test(nextTrimmed);
-            var nextIsLinkLine = (/^[\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF•●▪]/.test(nextTrimmed) && nextHasLink) ||
+            var nextIsLinkLine = /^[\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF]/.test(nextTrimmed) ||
                 /^[^:]+:\s+@\w+/.test(nextTrimmed);
             var nextIsBulletLine = /^[•●▪]\s/.test(nextTrimmed);
             var nextIsHeader = headerPatterns.test(nextTrimmed);
