@@ -241,6 +241,14 @@
 
         var rawHtml = rssDescription;
         var d = rawHtml
+            // Preserve links: extract href before stripping tags
+            .replace(/<a\s[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, function(m, url, text) {
+                var t = text.replace(/<[^>]+>/g, '').trim();
+                var urlClean = url.replace(/^https?:\/\//, '');
+                var tClean = t.replace(/^https?:\/\//, '');
+                if (!t || tClean === urlClean) return url;
+                return t + ': ' + url;
+            })
             .replace(/<br\s*\/?>/gi, '\n')
             .replace(/<\/p>/gi, '\n\n')
             .replace(/<\/div>/gi, '\n')
