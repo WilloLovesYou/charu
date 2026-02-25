@@ -532,7 +532,7 @@
         popup.document.close();
 
         setTimeout(function() {
-            window.open('https://admin.shopify.com/store/b14b8f-c3/content/articles/new', '_blank', 'width=' + w2 + ',height=' + sh + ',left=' + w1 + ',top=0');
+            window.open('https://admin.shopify.com/store/b14b8f-c3/content/articles/new', '_blank', 'width=' + w2 + ',height=' + sh + ',left=' + w1 + ',top=0,scrollbars=yes');
         }, 300);
 
     }).catch(function(error) {
