@@ -231,6 +231,44 @@ Instagram: @handle
             </div>
         </div>
 
+        <div class="panel" id="cheatSheet" style="margin-bottom:1.5rem;">
+            <h2 style="cursor:pointer;" onclick="var c=document.getElementById('cheatContent');c.style.display=c.style.display==='none'?'':'none';">
+                Quick Reference
+                <span class="badge" style="cursor:pointer;">click to toggle</span>
+            </h2>
+            <div id="cheatContent" style="font-size:0.85rem;line-height:1.8;">
+                <p style="color:#7a7570;margin-bottom:0.75rem;">The formatter looks for these <b>section headers</b> in your draft. Put each on its own line:</p>
+                <table style="width:100%;border-collapse:collapse;font-size:0.82rem;">
+                    <tr style="border-bottom:1px solid #e8e3de;">
+                        <td style="padding:6px 8px;"><b>Chapters</b></td>
+                        <td style="padding:6px 8px;color:#7a7570;">CHAPTERS</td>
+                        <td style="padding:6px 8px;color:#7a7570;">Then list timestamps like <code>00:00 Title</code></td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #e8e3de;">
+                        <td style="padding:6px 8px;"><b>Guest info</b></td>
+                        <td style="padding:6px 8px;color:#7a7570;">ABOUT [Name]<br>GUEST: [Name]</td>
+                        <td style="padding:6px 8px;color:#7a7570;">Bio paragraph, then links</td>
+                    </tr>
+                    <tr style="border-bottom:1px solid #e8e3de;">
+                        <td style="padding:6px 8px;"><b>Host info</b></td>
+                        <td style="padding:6px 8px;color:#7a7570;">ABOUT YOUR HOST<br>MEET YOUR HOST<br>HOST</td>
+                        <td style="padding:6px 8px;color:#7a7570;">Skipped — auto-filled for you</td>
+                    </tr>
+                    <tr>
+                        <td style="padding:6px 8px;"><b>Other</b></td>
+                        <td style="padding:6px 8px;color:#7a7570;">KEY TAKEAWAYS<br>LINKS / RESOURCES</td>
+                        <td style="padding:6px 8px;color:#7a7570;">Optional extra sections</td>
+                    </tr>
+                </table>
+                <p style="color:#7a7570;margin-top:0.75rem;"><b>Guest links</b> — just write them naturally, emojis are assigned automatically:<br>
+                <code>Website: https://...</code> → 🌐 &nbsp;
+                <code>Instagram: @handle</code> → 📸 &nbsp;
+                <code>LinkedIn: https://...</code> → 💼 &nbsp;
+                <code>Book: https://...</code> → 📘</p>
+                <p style="color:#7a7570;margin-top:0.5rem;"><b>Auto-added for you:</b> Host bio + links, Subscribe CTA</p>
+            </div>
+        </div>
+
         <div class="panel" id="outputPanel" style="display:none;">
             <h2>
                 Formatted Output
