@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <title>Your Colorful Path — Podcast Toolkit</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #faf8f5;
+            color: #2d2a26;
+            line-height: 1.6;
+        }
+        .header {
+            background: #2d2a26;
+            color: white;
+            padding: 2.5rem 2rem 1.5rem;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.75rem; font-weight: 400; margin-bottom: 0.25rem; }
+        .header p { color: #9a9590; }
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: #2d2a26;
+            flex-wrap: wrap;
+        }
+        .nav a {
+            color: #faf8f5;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            border: 1px solid #4a4540;
+            transition: all 0.15s;
+        }
+        .nav a:hover, .nav a.active {
+            background: #d49633;
+            border-color: #d49633;
+            color: white;
+        }
+        .container { max-width: 700px; margin: 0 auto; padding: 2rem; }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .card h2 { font-size: 1.25rem; margin-bottom: 1rem; }
+        .bookmarklet-box {
+            background: linear-gradient(135deg, #d49633 0%, #c47d28 100%);
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            margin: 1rem 0;
+        }
+        .bookmarklet-link {
+            display: inline-block;
+            background: #2d2a26;
+            color: white !important;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: grab;
+        }
+        .hint { color: white; margin-top: 1rem; font-size: 0.9rem; }
+        .steps { margin-top: 1rem; }
+        .step { display: flex; gap: 1rem; margin-bottom: 1rem; }
+        .step-num {
+            width: 28px; height: 28px;
+            background: #d49633; color: white;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; font-size: 0.85rem; flex-shrink: 0;
+        }
+        code { background: #f0ebe6; padding: 2px 6px; border-radius: 4px; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Blog Post Bookmarklet</h1>
+        <p>Libsyn → Shopify blog post generator</p>
+    </header>
+    <nav class="nav">
+        <a href="#bookmarklet" class="active">Blog Post Bookmarklet</a>
+        <a href="index.html">Libsyn &amp; YouTube Show Notes Formatter</a>
+        <a href="guest-email.html">Guest Email Generator</a>
+    </nav>
+    
+    <div class="container">
+        <div class="card" id="bookmarklet">
+            <h2>Libsyn → Shopify Bookmarklet</h2>
+            <p>Drag this button to your bookmarks bar. You'll only have to do this once as it can now be updated automagically!</p>
+            <div class="bookmarklet-box">
+                <a class="bookmarklet-link" href="javascript:(function(){var s=document.createElement('script');s.src='https://willolovesyou.github.io/charu/bookmarklet.js?v='+Date.now();document.body.appendChild(s);})()">📋 Libsyn → Shopify Blog Post</a>
+                <p class="hint">↑ Drag to bookmarks bar ↑</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>How to Use</h2>
+            <div class="steps">
+                <div class="step"><div class="step-num">1</div><div>Drag the button above to your bookmarks bar (one time only)</div></div>
+                <div class="step"><div class="step-num">2</div><div>Go to a Libsyn episode page (<code>five.libsyn.com/show/episodes/view/...</code>)</div></div>
+                <div class="step"><div class="step-num">3</div><div>Click the bookmarklet - two windows open side by side</div></div>
+                <div class="step"><div class="step-num">4</div><div>Copy each field into Shopify, add your image, and publish!</div></div>
+                <div class="step"><div class="step-num">5</div><div><a href="https://www.dropbox.com/scl/fi/m0qx8xzeas89am5s5uw1q/How-to-use-Bookmarklet.mov?rlkey=r2ngdj40qjhf8ynnps28d4t6r&dl=0" target="_blank" rel="noopener" style="color:#d49633;font-weight:600;">Watch Video Instructions</a></div></div>
+            </div>
+            <div style="margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid #e8e3de;">
+                <h3 style="font-size:1rem;margin-bottom:0.5rem;">Adding the YouTube video to the blog post later?</h3>
+                <p style="font-size:0.9rem;color:#5a5550;">Paste the YouTube link below to generate the embed code for the top of the blog post.</p>
+                <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
+                    <input type="text" id="ytInput" placeholder="Paste YouTube URL here..." style="flex:1;padding:0.6rem 0.75rem;border:2px solid #e8e3de;border-radius:8px;font-size:0.9rem;" oninput="convertYt()">
+                </div>
+                <div id="ytResult" style="display:none;margin-top:0.75rem;">
+                    <div style="display:flex;gap:0.5rem;align-items:center;">
+                        <code id="ytEmbed" style="flex:1;display:block;padding:0.6rem 0.75rem;background:#f0ebe6;border-radius:8px;font-size:0.82rem;word-break:break-all;white-space:pre-wrap;"></code>
+                        <button onclick="copyYtEmbed()" id="ytCopyBtn" style="padding:0.5rem 1rem;background:#2d2a26;color:white;border:none;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;">Copy</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>What It Generates</h2>
+            <ul style="margin-left: 1.25rem; color: #5a5550;">
+                <li>Title with "Episode #" prefix</li>
+                <li>SEO-optimized page title and meta description</li>
+                <li>Clean URL handle (e.g., e26-guest-name-topic)</li>
+                <li>YouTube video embed (if found in description)</li>
+                <li>"Listen on Your Favorite App" button linking to pod.link</li>
+                <li>Episode artwork URL (full-size from RSS feed)</li>
+                <li>Properly formatted description with chapter list</li>
+                <li>Libsyn audio player</li>
+                <li>Divine Amuleto branded CTA</li>
+            </ul>
+        </div>
+
+        <div class="card">
+            <h2 style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;" onclick="var c=document.getElementById('batchContent');var a=document.getElementById('batchArrow');if(c.style.display==='none'){c.style.display='';a.textContent='▾';}else{c.style.display='none';a.textContent='▸';}">
+                <span id="batchArrow" style="font-size:0.9rem;color:#9a9590;">▸</span> Batch Mode (All Episodes)
+            </h2>
+            <div id="batchContent" style="display:none;">
+                <p>One-time catchup tool — processes every episode from the RSS feed at once. Run this on the <a href="https://ad52c5cc-20e4-4770-8977-92695936dc6b.libsyn.com/" target="_blank" style="color:#d49633;">Your Colorful Path Libsyn page</a>.</p>
+                <div class="bookmarklet-box" style="background:linear-gradient(135deg, #7a6850 0%, #5a4a38 100%);">
+                    <a class="bookmarklet-link" href="javascript:(function(){var s=document.createElement('script');s.src='https://willolovesyou.github.io/charu/batch-bookmarklet.js?v='+Date.now();document.body.appendChild(s);})()">📋 Batch: All Episodes</a>
+                    <p class="hint">↑ Drag to bookmarks bar ↑</p>
+                </div>
+                <div class="steps" style="margin-top:1rem;">
+                    <div class="step"><div class="step-num">1</div><div>Drag the button above to your bookmarks bar</div></div>
+                    <div class="step"><div class="step-num">2</div><div>Go to <a href="https://ad52c5cc-20e4-4770-8977-92695936dc6b.libsyn.com/" target="_blank" style="color:#d49633;">the Libsyn show page</a></div></div>
+                    <div class="step"><div class="step-num">3</div><div>Click the bookmarklet — all episodes appear in a popup</div></div>
+                    <div class="step"><div class="step-num">4</div><div>Click an episode to expand, then copy each field into Shopify</div></div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        function convertYt() {
+            var url = document.getElementById('ytInput').value.trim();
+            var id = '';
+            var m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+            if (m) id = m[1];
+            if (id) {
+                document.getElementById('ytEmbed').textContent = '<!-- YouTube Video -->\n<div class="ycp-video-wrap"><iframe src="https://www.youtube.com/embed/' + id + '" frameborder="0" allowfullscreen></iframe></div>';
+                document.getElementById('ytResult').style.display = '';
+            } else {
+                document.getElementById('ytResult').style.display = 'none';
+            }
+        }
+        function copyYtEmbed() {
+            var text = document.getElementById('ytEmbed').textContent;
+            navigator.clipboard.writeText(text).then(function() {
+                var btn = document.getElementById('ytCopyBtn');
+                btn.textContent = 'Copied!';
+                btn.style.background = '#2d8a2d';
+                setTimeout(function() { btn.textContent = 'Copy'; btn.style.background = '#2d2a26'; }, 1500);
+            });
+        }
+        </script>
+    </div>
+
+    <footer style="text-align:center;padding:2rem;color:#9a9590;font-size:0.85rem;">
+        <p>Created by Willo Sana for<br>Charu &bull; Divine Amuleto &bull; Your Colorful Path Podcast</p>
+        <p>&copy; 2026 Willo&amp;Co LLC &bull; <a href="https://EvolveYourGenius.com" target="_blank" rel="noopener" style="color:#d49633;text-decoration:none;">EvolveYourGenius.com</a></p>
+    </footer>
+</body>
+</html>
