@@ -132,6 +132,43 @@
                 <a href="guest-email.html" style="display:inline-block;background:linear-gradient(135deg, #d49633 0%, #c47d28 100%);color:white;padding:0.75rem 2rem;border-radius:8px;text-decoration:none;font-weight:600;">Open Guest Email Generator</a>
             </div>
         </div>
+
+        <div class="card">
+            <h2>YouTube Embed URL</h2>
+            <p>Paste a YouTube link, get the embed URL for Shopify.</p>
+            <div style="display:flex;gap:0.5rem;margin-top:0.75rem;">
+                <input type="text" id="ytInput" placeholder="Paste YouTube URL here..." style="flex:1;padding:0.6rem 0.75rem;border:2px solid #e8e3de;border-radius:8px;font-size:0.9rem;" oninput="convertYt()">
+            </div>
+            <div id="ytResult" style="display:none;margin-top:0.75rem;">
+                <div style="display:flex;gap:0.5rem;align-items:center;">
+                    <code id="ytEmbed" style="flex:1;display:block;padding:0.6rem 0.75rem;background:#f0ebe6;border-radius:8px;font-size:0.82rem;word-break:break-all;"></code>
+                    <button onclick="copyYtEmbed()" id="ytCopyBtn" style="padding:0.5rem 1rem;background:#2d2a26;color:white;border:none;border-radius:8px;font-size:0.8rem;font-weight:600;cursor:pointer;white-space:nowrap;">Copy</button>
+                </div>
+            </div>
+            <script>
+            function convertYt() {
+                var url = document.getElementById('ytInput').value.trim();
+                var id = '';
+                var m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+                if (m) id = m[1];
+                if (id) {
+                    document.getElementById('ytEmbed').textContent = 'https://www.youtube.com/embed/' + id;
+                    document.getElementById('ytResult').style.display = '';
+                } else {
+                    document.getElementById('ytResult').style.display = 'none';
+                }
+            }
+            function copyYtEmbed() {
+                var text = document.getElementById('ytEmbed').textContent;
+                navigator.clipboard.writeText(text).then(function() {
+                    var btn = document.getElementById('ytCopyBtn');
+                    btn.textContent = 'Copied!';
+                    btn.style.background = '#2d8a2d';
+                    setTimeout(function() { btn.textContent = 'Copy'; btn.style.background = '#2d2a26'; }, 1500);
+                });
+            }
+            </script>
+        </div>
     </div>
 
     <footer style="text-align:center;padding:2rem;color:#9a9590;font-size:0.85rem;">
