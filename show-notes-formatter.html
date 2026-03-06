@@ -278,16 +278,22 @@ Instagram: @handle
                 <span class="badge" id="outputBadge">ready to copy</span>
             </h2>
             <div class="toggle-row">
-                <button class="toggle-btn active" onclick="showView('preview')" id="togglePreview">Preview</button>
+                <button class="toggle-btn active" onclick="showView('preview')" id="togglePreview">Libsyn Preview</button>
                 <button class="toggle-btn" onclick="showView('html')" id="toggleHtml">HTML Source</button>
+                <button class="toggle-btn" onclick="showView('youtube')" id="toggleYt">YouTube Description</button>
             </div>
             <div id="previewView" class="preview-area"></div>
             <div id="htmlView" class="html-view" style="display:none;"></div>
-            <div class="btn-row">
+            <div id="youtubeView" class="html-view" style="display:none;white-space:pre-wrap;font-family:inherit;background:#faf8f5;color:#2d2a26;font-size:0.85rem;line-height:1.7;"></div>
+            <div class="btn-row" id="libsynBtns">
                 <button class="btn btn-secondary" onclick="copyFormatted()" id="copyBtn">Copy Rich Text (for Libsyn editor)</button>
                 <button class="btn btn-outline" onclick="copyHtml()" id="copyHtmlBtn">Copy HTML Source</button>
             </div>
-            <p class="tip">Use "Copy Rich Text" to paste directly into Libsyn's editor. Use "Copy HTML Source" if you switch to Libsyn's HTML/source view.</p>
+            <div class="btn-row" id="youtubeBtns" style="display:none;">
+                <button class="btn btn-secondary" onclick="copyYouTube()" id="copyYtBtn">Copy YouTube Description</button>
+            </div>
+            <p class="tip" id="libsynTip">Use "Copy Rich Text" to paste directly into Libsyn's editor. Use "Copy HTML Source" if you switch to Libsyn's HTML/source view.</p>
+            <p class="tip" id="youtubeTip" style="display:none;">Plain text with bare URLs — YouTube auto-links them. Timestamps create chapter markers.</p>
         </div>
     </div>
 
@@ -664,12 +670,167 @@ Instagram: @handle
         return html.trim();
     }
 
+    // ── YouTube Description (plain text with bare URLs) ──
+    function buildYouTubeText(sections) {
+        var text = '';
+        var guestName = '';
+        var featuredPieceLines = [];
+
+        // Detect guest name and extract featured piece from host section
+        for (var i = 0; i < sections.length; i++) {
+            if (sections[i].type === 'guest') {
+                var hdr = (sections[i].header || '');
+                var gm = hdr.match(/about\s+(.+)/i) ||
+                         hdr.match(/guest\s*:\s*(.+)/i) ||
+                         hdr.match(/meet\s+(.+)/i);
+                if (gm) guestName = gm[1].replace(/[:!]/g, '').trim();
+            }
+            if (sections[i].type === 'host') {
+                for (var j = 0; j < sections[i].lines.length; j++) {
+                    if (/featured\s*piece/i.test(sections[i].lines[j])) {
+                        featuredPieceLines.push(sections[i].lines[j]);
+                    }
+                }
+            }
+        }
+
+        for (var i = 0; i < sections.length; i++) {
+            var sec = sections[i];
+            if (sec.type === 'host' || sec.type === 'subscribe') continue;
+
+            if (sec.type === 'description') {
+                for (var j = 0; j < sec.lines.length; j++) {
+                    text += sec.lines[j] + '\n';
+                }
+                text += '\n';
+            }
+            else if (sec.type === 'chapters') {
+                text += '\u23F1\uFE0F CHAPTERS\n';
+                for (var j = 0; j < sec.lines.length; j++) {
+                    var line = sec.lines[j];
+                    var tsMatch = line.match(/^[\(\[]?(\d{1,2}:\d{2})[\)\]]?\s*(.*)/);
+                    if (tsMatch) {
+                        line = normalizeTimestamp(tsMatch[1]) + ' ' + tsMatch[2];
+                    }
+                    text += line + '\n';
+                }
+                text += '\n';
+            }
+            else if (sec.type === 'guest') {
+                var cleanName = guestName || '';
+                var headerText = cleanName ? '\uD83D\uDC64 ABOUT OUR GUEST, ' + cleanName.toUpperCase() : '\uD83D\uDC64 ABOUT OUR GUEST';
+                text += headerText + '\n';
+                var bioLines = [];
+                var linkLines = [];
+                for (var j = 0; j < sec.lines.length; j++) {
+                    var line = sec.lines[j];
+                    if (LINK_LINE_RE.test(line) || HANDLE_LINE_RE.test(line) || EMOJI_RE.test(line)) {
+                        linkLines.push(line);
+                    } else {
+                        bioLines.push(line);
+                    }
+                }
+                for (var j = 0; j < bioLines.length; j++) {
+                    text += bioLines[j] + '\n';
+                }
+                for (var j = 0; j < linkLines.length; j++) {
+                    text += ytFormatLink(linkLines[j]) + '\n';
+                }
+                text += '\n';
+            }
+            else if (sec.type === 'takeaways' || sec.type === 'links') {
+                var headerText = (sec.header || sec.type.toUpperCase()).toUpperCase().replace(/^[^a-zA-Z]+/, '').trim();
+                text += headerText + '\n';
+                for (var j = 0; j < sec.lines.length; j++) {
+                    text += sec.lines[j] + '\n';
+                }
+                text += '\n';
+            }
+        }
+
+        // Host section
+        text += '\u2728 ABOUT YOUR HOST, CHARU\n';
+        text += 'Charu Boeckel is the host of Your Colorful Path and a professional jewelry designer. After a life-changing transformation through meditation, Charu now shares conversations and fine jewelry to help people connect to both their human and divine selves, turning life from an obstacle course into a colorful, aligned path.\n';
+        text += '\n';
+        text += 'Charu\u2019s jewelry line is Divine Amuleto, a high-frequency, sacred geometry jewelry line designed as conscious jewelry reminders; pieces you wear to stay aware of your state, return to your center, and live with more intention.\n';
+        for (var j = 0; j < HOST_LINKS.length; j++) {
+            var lk = HOST_LINKS[j];
+            var display = lk.handle ? (lk.label + ': ' + lk.handle) : lk.label;
+            text += lk.emoji + ' ' + display + ': ' + lk.url + '\n';
+        }
+
+        // Featured piece
+        for (var j = 0; j < featuredPieceLines.length; j++) {
+            var fpLine = featuredPieceLines[j];
+            if (EMOJI_RE.test(fpLine)) {
+                fpLine = fpLine.replace(/^[^\x20-\x7E]+\s*/, '');
+            }
+            text += '\uD83D\uDFE3 ' + fpLine + '\n';
+        }
+        text += '\n';
+
+        // Subscribe
+        text += '\u2705 SUBSCRIBE\n';
+        text += 'If this episode supported you, please subscribe to the channel. It helps more people find these conversations, and it keeps Your Colorful Path growing.\n';
+
+        return text.trim();
+    }
+
+    // Format a link line for YouTube (plain text with bare URL)
+    function ytFormatLink(line) {
+        // Strip existing emoji
+        if (EMOJI_RE.test(line)) {
+            line = line.replace(/^[^\x20-\x7E]+\s*/, '');
+        }
+        var emoji = guessLinkEmoji(line);
+
+        // "Label: URL" pattern
+        var labelUrl = line.match(LINK_LINE_RE);
+        if (labelUrl) {
+            var label = labelUrl[1].trim();
+            var url = labelUrl[2];
+            // Clean up generic labels
+            var ep = extractEmoji(label);
+            var displayText = ep.text;
+            if (/instagram\.com/i.test(url)) {
+                var igMatch = url.match(/instagram\.com\/([a-zA-Z0-9_.]+)/);
+                if (igMatch) return emoji + ' IG: @' + igMatch[1] + ': ' + url;
+            }
+            return emoji + ' ' + displayText + ': ' + url;
+        }
+
+        // "Label: @handle" pattern
+        var handleMatch = line.match(HANDLE_LINE_RE);
+        if (handleMatch) {
+            var label = handleMatch[1].trim();
+            var handle = handleMatch[2];
+            var labelLower = label.toLowerCase();
+            if (/youtube|yt/i.test(labelLower)) {
+                return emoji + ' YouTube: @' + handle + ': https://www.youtube.com/@' + handle;
+            }
+            if (/tiktok|tik tok/i.test(labelLower)) {
+                return emoji + ' TikTok: @' + handle + ': https://www.tiktok.com/@' + handle;
+            }
+            return emoji + ' IG: @' + handle + ': https://www.instagram.com/' + handle;
+        }
+
+        return emoji + ' ' + line;
+    }
+
+    function copyYouTube() {
+        var text = document.getElementById('youtubeView').textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            flashButton('copyYtBtn', 'Copied!');
+        });
+    }
+
     function formatNotes() {
         var input = document.getElementById('input').value.trim();
         if (!input) return;
 
         var sections = parseInput(input);
         var html = buildHtml(sections);
+        var ytText = buildYouTubeText(sections);
 
         // Show output panel
         document.getElementById('outputPanel').style.display = '';
@@ -678,11 +839,13 @@ Instagram: @handle
         document.getElementById('previewView').innerHTML = html;
 
         // HTML source
-        // Pretty-print with indentation
         var formatted = html
             .replace(/></g, '>\n<')
             .replace(/\n{3,}/g, '\n\n');
         document.getElementById('htmlView').textContent = formatted;
+
+        // YouTube description
+        document.getElementById('youtubeView').textContent = ytText;
 
         // Update detected sections bar
         updateDetectedBar(sections);
@@ -729,21 +892,18 @@ Instagram: @handle
     }
 
     function showView(view) {
-        var preview = document.getElementById('previewView');
-        var htmlEl = document.getElementById('htmlView');
-        var btnP = document.getElementById('togglePreview');
-        var btnH = document.getElementById('toggleHtml');
-        if (view === 'preview') {
-            preview.style.display = '';
-            htmlEl.style.display = 'none';
-            btnP.classList.add('active');
-            btnH.classList.remove('active');
-        } else {
-            preview.style.display = 'none';
-            htmlEl.style.display = '';
-            btnP.classList.remove('active');
-            btnH.classList.add('active');
+        var views = ['previewView', 'htmlView', 'youtubeView'];
+        var btns = ['togglePreview', 'toggleHtml', 'toggleYt'];
+        var activeView = view === 'preview' ? 0 : view === 'html' ? 1 : 2;
+        for (var i = 0; i < views.length; i++) {
+            document.getElementById(views[i]).style.display = i === activeView ? '' : 'none';
+            document.getElementById(btns[i]).classList[i === activeView ? 'add' : 'remove']('active');
         }
+        var isYt = view === 'youtube';
+        document.getElementById('libsynBtns').style.display = isYt ? 'none' : '';
+        document.getElementById('youtubeBtns').style.display = isYt ? '' : 'none';
+        document.getElementById('libsynTip').style.display = isYt ? 'none' : '';
+        document.getElementById('youtubeTip').style.display = isYt ? '' : 'none';
     }
 
     function copyFormatted() {
