@@ -236,6 +236,11 @@
         </div>
 
         <div class="panel" id="outputPanel" style="display:none;">
+            <h2>Subject Line</h2>
+            <div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1.25rem;">
+                <div id="subjectLine" style="flex:1;font-weight:700;font-size:1rem;letter-spacing:0.02em;padding:0.6rem 0.75rem;background:#faf8f5;border:2px solid #e8e3de;border-radius:8px;"></div>
+                <button class="btn btn-outline" onclick="copySubject()" id="copySubjectBtn" style="white-space:nowrap;">Copy</button>
+            </div>
             <h2>
                 Email Preview
                 <span class="badge" id="outputBadge">ready to copy</span>
@@ -461,29 +466,38 @@
         var youtubeUrl = document.getElementById('youtubeUrl').value.trim();
         var podlinkUrl = document.getElementById('podlinkUrl').value.trim();
 
-        // Build platform links
-        var platformLinks = [];
-        if (appleUrl) platformLinks.push({ label: 'Apple Podcasts', url: appleUrl });
-        if (spotifyUrl) platformLinks.push({ label: 'Spotify', url: spotifyUrl });
-        if (youtubeUrl) platformLinks.push({ label: 'YouTube', url: youtubeUrl });
+        // Build subject line from selected episode
+        var sel = document.getElementById('episodeSelect');
+        var subjectText = '';
+        if (sel.value) {
+            var ep = episodes[parseInt(sel.value)];
+            subjectText = ep.title.toUpperCase();
+            // Ensure it starts with "EP#" format
+            if (/^\d/.test(subjectText)) subjectText = 'EP#' + subjectText;
+            else if (/^#\d/.test(subjectText)) subjectText = 'EP' + subjectText;
+        }
+        document.getElementById('subjectLine').textContent = subjectText || 'SELECT AN EPISODE ABOVE';
 
-        var platformHtml = '';
-        for (var i = 0; i < platformLinks.length; i++) {
-            platformHtml += '<br>' + platformLinks[i].label + ': <a href="' + platformLinks[i].url + '" target="_blank" rel="noopener">' + platformLinks[i].url + '</a>';
-        }
-        if (podlinkUrl) {
-            platformHtml += '<br>More platforms: <a href="' + podlinkUrl + '" target="_blank" rel="noopener">' + podlinkUrl + '</a>';
-        }
+        // Build platform bullet list with hyperlinked names
+        var bullets = [];
+        if (appleUrl) bullets.push('<li><a href="' + appleUrl + '" target="_blank" rel="noopener">Apple</a></li>');
+        if (spotifyUrl) bullets.push('<li><a href="' + spotifyUrl + '" target="_blank" rel="noopener">Spotify</a></li>');
+        if (youtubeUrl) bullets.push('<li><a href="' + youtubeUrl + '" target="_blank" rel="noopener">YouTube</a></li>');
+        if (podlinkUrl) bullets.push('<li><a href="' + podlinkUrl + '" target="_blank" rel="noopener">More listed here</a> (same as \u201cListen on Your Favorite App\u201d button on the blog post)</li>');
+
+        var bulletList = bullets.length > 0
+            ? '<ul>' + bullets.join('') + '</ul>'
+            : '<p>[links will appear as you fill in the fields above]</p>';
 
         var blogLink = blogUrl
             ? '<a href="' + blogUrl + '" target="_blank" rel="noopener">' + blogUrl + '</a>'
             : '[blog post URL]';
 
         var html = '<p>Hello ' + guestName + ',</p>' +
-            '<p>I am thrilled to share that our episode has gone LIVE worldwide on Apple, Spotify, YouTube, and more!</p>' +
-            '<p>I\'ve published our episode here on my website:<br>' + blogLink + '</p>' +
-            '<p>You\'re welcome to share that link, or here are a few direct links to top platforms:' +
-            (platformHtml || '<br>[links will appear as you fill in the fields above]') + '</p>' +
+            '<p>I am thrilled to share that our episode has gone LIVE, worldwide, on Apple, Spotify, YouTube, and more!</p>' +
+            '<p>I\'ve published a blog post featuring our episode here on my website:<br>' + blogLink + '</p>' +
+            '<p>You\'re welcome to share that link, and here are a few more direct links to the episode:</p>' +
+            bulletList +
             '<p>Please share &amp; tag me using these social media handles:<br>' +
             'Instagram: @YourColorfulPath<br>' +
             'Instagram: @DivineAmuleto<br>' +
@@ -494,6 +508,13 @@
         // Show output
         document.getElementById('outputPanel').style.display = '';
         document.getElementById('emailPreview').innerHTML = html;
+    }
+
+    function copySubject() {
+        var text = document.getElementById('subjectLine').textContent;
+        navigator.clipboard.writeText(text).then(function() {
+            flashButton('copySubjectBtn', 'Copied!');
+        });
     }
 
     function copyEmail() {
