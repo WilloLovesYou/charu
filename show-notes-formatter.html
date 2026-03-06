@@ -755,8 +755,7 @@ Instagram: @handle
         text += 'Charu\u2019s jewelry line is Divine Amuleto, a high-frequency, sacred geometry jewelry line designed as conscious jewelry reminders; pieces you wear to stay aware of your state, return to your center, and live with more intention.\n';
         for (var j = 0; j < HOST_LINKS.length; j++) {
             var lk = HOST_LINKS[j];
-            var display = lk.handle ? (lk.label + ': ' + lk.handle) : lk.label;
-            text += lk.emoji + ' ' + display + ': ' + lk.url + '\n';
+            text += lk.emoji + ' ' + lk.url + '\n';
         }
 
         // Featured piece
@@ -776,7 +775,7 @@ Instagram: @handle
         return text.trim();
     }
 
-    // Format a link line for YouTube (plain text with bare URL)
+    // Format a link line for YouTube (plain text — just emoji + URL)
     function ytFormatLink(line) {
         // Strip existing emoji
         if (EMOJI_RE.test(line)) {
@@ -784,34 +783,24 @@ Instagram: @handle
         }
         var emoji = guessLinkEmoji(line);
 
-        // "Label: URL" pattern
+        // "Label: URL" pattern — just use the URL
         var labelUrl = line.match(LINK_LINE_RE);
         if (labelUrl) {
-            var label = labelUrl[1].trim();
-            var url = labelUrl[2];
-            // Clean up generic labels
-            var ep = extractEmoji(label);
-            var displayText = ep.text;
-            if (/instagram\.com/i.test(url)) {
-                var igMatch = url.match(/instagram\.com\/([a-zA-Z0-9_.]+)/);
-                if (igMatch) return emoji + ' IG: @' + igMatch[1] + ': ' + url;
-            }
-            return emoji + ' ' + displayText + ': ' + url;
+            return emoji + ' ' + labelUrl[2];
         }
 
-        // "Label: @handle" pattern
+        // "Label: @handle" pattern — construct the URL
         var handleMatch = line.match(HANDLE_LINE_RE);
         if (handleMatch) {
-            var label = handleMatch[1].trim();
             var handle = handleMatch[2];
-            var labelLower = label.toLowerCase();
+            var labelLower = handleMatch[1].toLowerCase();
             if (/youtube|yt/i.test(labelLower)) {
-                return emoji + ' YouTube: @' + handle + ': https://www.youtube.com/@' + handle;
+                return emoji + ' https://www.youtube.com/@' + handle;
             }
             if (/tiktok|tik tok/i.test(labelLower)) {
-                return emoji + ' TikTok: @' + handle + ': https://www.tiktok.com/@' + handle;
+                return emoji + ' https://www.tiktok.com/@' + handle;
             }
-            return emoji + ' IG: @' + handle + ': https://www.instagram.com/' + handle;
+            return emoji + ' https://www.instagram.com/' + handle;
         }
 
         return emoji + ' ' + line;
