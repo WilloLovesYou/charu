@@ -210,7 +210,7 @@
         <div class="panel">
             <h2>Episode Details <span style="font-weight:400;font-size:0.85rem;color:#9a9590;">pulled from Libsyn</span></h2>
             <div id="loadingState" class="loading">
-                <span class="spinner"></span> Loading episodes from Libsyn RSS feed, Apple Podcasts, Spotify &amp; YouTube...
+                <span class="spinner"></span> Loading episodes from Libsyn, Apple Podcasts, YouTube &amp; Shopify blog...
             </div>
             <div id="formFields" style="display:none;">
                 <div class="field">
@@ -247,7 +247,7 @@
                         <span class="status status-none" id="spotifyStatus">--</span>
                         <a id="spotifyTestLink" href="#" target="_blank" rel="noopener" title="Test URL" style="display:none;font-size:0.8rem;white-space:nowrap;color:#d49633;text-decoration:none;">Test &#x2197;</a>
                     </div>
-                    <p class="hint">Auto-filled from Spotify. If missing, open Spotify &rarr; Share &rarr; Copy Link</p>
+                    <p class="hint">Auto-filled when available. If missing: <a href="https://open.spotify.com/show/1x2HAt12L7urPdjPOiUbtj" target="_blank" rel="noopener" style="color:#d49633;">Open Spotify show page</a> &rarr; find episode &rarr; Share &rarr; Copy Link &rarr; paste above</p>
                 </div>
                 <div class="field">
                     <label>YouTube</label>
@@ -297,35 +297,14 @@
     var APPLE_SHOW_ID = '1790327657';
     var RSS_FEED = 'https://rss.libsyn.com/shows/521038/destinations/4475083.xml';
     var BLOG_BASE = 'https://www.divineamuleto.com/blogs/your-colorful-path-podcast/';
+    var BLOG_ATOM = BLOG_BASE + '.atom';
+    var YOUTUBE_CHANNEL_ID = 'UCzFbwY7hFNFIgTNpdUhFpgQ';
+    var YOUTUBE_FEED = 'https://www.youtube.com/feeds/videos.xml?channel_id=' + YOUTUBE_CHANNEL_ID;
     var PODLINK_BASE = 'https://pod.link/' + APPLE_SHOW_ID;
+    var SPOTIFY_SHOW_ID = '1x2HAt12L7urPdjPOiUbtj';
 
-    // Blog post handles — add new episodes here as they drop
-    // Get handles from: https://www.divineamuleto.com/blogs/your-colorful-path-podcast
-    var BLOG_HANDLES = {
-        28: 'e28-sam-yemane-rewire-your-subconscious',
-        27: 'e27-how-to-rebuild-your-life-after-sudden-loss',
-        26: 'e26-formica-coriandolo-damanhur',
-        25: 'e25-can-you-trust-a-meditation-vision',
-        24: 'e24-joh-jarvis-does-meditation-work-in-prisons-real-stories-from',
-        23: 'e23-victoria-salomon-bones-boundaries-and-bridging-energy-body-with',
-        22: 'e22-transforming-burnout-barron-hanson',
-        21: 'e21-daily-meditation-selfbelief-healing-ikshits-journey'
-    };
-
-    // YouTube video IDs — add new episodes here as they drop
-    // Get IDs from: https://www.youtube.com/@YourColorfulpathwithCharu
-    var YOUTUBE_EPISODES = {
-        28: 'wifMp3a7uac',
-        27: 'tzQETETsjx4',
-        25: '5wYzw4Bvfl4',
-        24: 'G23uyAEXaek',
-        23: '8ELBM924p9c',
-        22: 'l7z7e_GxIC4',
-        21: '3uo549sW7Bg'
-    };
-
-    // Spotify episode IDs — add new episodes here as they drop
-    // Get IDs from: https://open.spotify.com/show/1x2HAt12L7urPdjPOiUbtj
+    // Spotify episode IDs — only needed because Spotify has no public feed
+    // To find a new ID: open episode on Spotify → Share → Copy Link → grab the ID after /episode/
     var SPOTIFY_EPISODES = {
         28: '1sLjSUM1s4Mjj5eziOzUHA',
         27: '0LMCY4oTFIv55U227V3eB8',
@@ -341,7 +320,7 @@
         16: '7teSNZUIY11tRQExLrU4cC'
     };
 
-    var episodes = []; // merged data from iTunes + RSS + Spotify
+    var episodes = []; // merged data from all sources
 
     // ── Fetch episode data on page load ──
     (function init() {
@@ -349,10 +328,18 @@
             fetch('https://itunes.apple.com/lookup?id=' + APPLE_SHOW_ID + '&entity=podcastEpisode&limit=200')
                 .then(function(r) { return r.json(); }),
             fetch(RSS_FEED)
+                .then(function(r) { return r.text(); }),
+            fetch(YOUTUBE_FEED)
                 .then(function(r) { return r.text(); })
+                .catch(function() { return ''; }),
+            fetch(BLOG_ATOM)
+                .then(function(r) { return r.text(); })
+                .catch(function() { return ''; })
         ]).then(function(results) {
             var itunesData = results[0];
             var rssText = results[1];
+            var ytFeedText = results[2];
+            var blogFeedText = results[3];
 
             // Parse iTunes episodes — key by GUID
             var itunesEps = {};
@@ -363,6 +350,45 @@
                     appleUrl: item.trackViewUrl,
                     title: item.trackName
                 };
+            }
+
+            // Parse YouTube feed — map episode numbers to video IDs
+            var ytByEpNum = {};
+            if (ytFeedText) {
+                var ytParser = new DOMParser();
+                var ytXml = ytParser.parseFromString(ytFeedText, 'text/xml');
+                var ytEntries = ytXml.querySelectorAll('entry');
+                for (var i = 0; i < ytEntries.length; i++) {
+                    var ytTitle = ytEntries[i].querySelector('title');
+                    var ytVideoId = ytEntries[i].getElementsByTagName('yt:videoId')[0];
+                    if (ytTitle && ytVideoId) {
+                        var ytEpMatch = ytTitle.textContent.match(/^#?(\d+)\s/);
+                        if (ytEpMatch) {
+                            ytByEpNum[parseInt(ytEpMatch[1])] = ytVideoId.textContent.trim();
+                        }
+                    }
+                }
+            }
+
+            // Parse Shopify blog Atom feed — map episode numbers to handles
+            var blogByEpNum = {};
+            if (blogFeedText) {
+                var blogParser = new DOMParser();
+                var blogXml = blogParser.parseFromString(blogFeedText, 'text/xml');
+                var blogEntries = blogXml.querySelectorAll('entry');
+                for (var i = 0; i < blogEntries.length; i++) {
+                    var blogLink = blogEntries[i].querySelector('link[rel="alternate"]');
+                    var blogTitle = blogEntries[i].querySelector('title');
+                    if (blogLink && blogTitle) {
+                        var href = blogLink.getAttribute('href') || '';
+                        var handle = href.split('/').pop();
+                        var blogEpMatch = (blogTitle.textContent || '').match(/^#?(\d+)\s/) ||
+                                          handle.match(/^e(\d+)-/);
+                        if (blogEpMatch && handle) {
+                            blogByEpNum[parseInt(blogEpMatch[1])] = handle;
+                        }
+                    }
+                }
             }
 
             // Parse RSS feed
@@ -382,14 +408,16 @@
                 var epMatch = title.match(/^#?(\d+)\s/);
                 var epNum = epMatch ? parseInt(epMatch[1]) : 0;
 
-                // Extract YouTube URL from description, fall back to lookup table
-                var ytMatch = desc.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
-                var ytVideoId = YOUTUBE_EPISODES[epNum];
-                var youtubeUrl = ytMatch ? 'https://www.youtube.com/watch?v=' + ytMatch[1]
-                    : ytVideoId ? 'https://www.youtube.com/watch?v=' + ytVideoId : '';
+                // YouTube: prefer live feed, then description, then nothing
+                var ytId = ytByEpNum[epNum];
+                var youtubeUrl = ytId ? 'https://www.youtube.com/watch?v=' + ytId : '';
+                if (!youtubeUrl) {
+                    var ytMatch = desc.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+                    if (ytMatch) youtubeUrl = 'https://www.youtube.com/watch?v=' + ytMatch[1];
+                }
 
-                // Build blog post URL handle — prefer lookup table, fall back to generated
-                var handle = BLOG_HANDLES[epNum] || buildHandle(title, epNum);
+                // Blog: prefer live feed, then generated handle
+                var handle = blogByEpNum[epNum] || buildHandle(title, epNum);
 
                 // Get Apple URL from iTunes data
                 var appleUrl = '';
