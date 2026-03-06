@@ -266,6 +266,8 @@ Instagram: @handle
                 <code>LinkedIn: https://...</code> → 💼 &nbsp;
                 <code>Book: https://...</code> → 📘 &nbsp;
                 <code>YouTube: @handle</code> → ▶️</p>
+                <p style="color:#7a7570;margin-top:0.5rem;"><b>Featured Piece</b> — include in the host section and it will be preserved:<br>
+                <code>Featured Piece (Name): https://...</code> → 🟣</p>
                 <p style="color:#7a7570;margin-top:0.5rem;"><b>Auto-added for you:</b> Host bio + links, Subscribe CTA</p>
             </div>
         </div>
@@ -464,6 +466,7 @@ Instagram: @handle
     // Smart emoji assignment for guest links based on URL/label content
     function guessLinkEmoji(line) {
         var lower = line.toLowerCase();
+        if (/\bfeatured\s*piece\b/.test(lower)) return '\uD83D\uDFE3'; // 🟣
         if (/youtube\.com|\byoutube\b|\byt\b/.test(lower)) return '\u25B6\uFE0F'; // ▶️
         if (/tiktok\.com|\btiktok\b|\btik tok\b/.test(lower)) return '\uD83C\uDFB5'; // 🎵
         if (/instagram\.com|\binstagram\b|\big\b/.test(lower) || /^[^:]*:\s*@/.test(lower)) return '\uD83D\uDCF8'; // 📸
@@ -484,8 +487,9 @@ Instagram: @handle
         var html = '';
         var hasChapters = false, hasGuest = false, hasHost = false;
         var guestName = '';
+        var featuredPieceLines = [];
 
-        // Detect what we have
+        // Detect what we have and extract featured piece from host section
         for (var i = 0; i < sections.length; i++) {
             if (sections[i].type === 'chapters') hasChapters = true;
             if (sections[i].type === 'guest') {
@@ -497,7 +501,15 @@ Instagram: @handle
                          hdr.match(/meet\s+(.+)/i);
                 if (gm) guestName = gm[1].replace(/[:!]/g, '').trim();
             }
-            if (sections[i].type === 'host') hasHost = true;
+            if (sections[i].type === 'host') {
+                hasHost = true;
+                // Extract any "Featured Piece" lines before we skip this section
+                for (var j = 0; j < sections[i].lines.length; j++) {
+                    if (/featured\s*piece/i.test(sections[i].lines[j])) {
+                        featuredPieceLines.push(sections[i].lines[j]);
+                    }
+                }
+            }
         }
 
         // Build each section
@@ -628,6 +640,22 @@ Instagram: @handle
             html += lk.emoji + ' <a href="' + lk.url + '" target="_blank" rel="noopener">' + display + '</a>';
         }
         html += '</p>\n';
+
+        // Insert featured piece lines (extracted from host section input)
+        if (featuredPieceLines.length > 0) {
+            html += '<p>';
+            for (var j = 0; j < featuredPieceLines.length; j++) {
+                var fpLine = featuredPieceLines[j];
+                // Strip existing emoji prefix and reassign 🟣
+                if (EMOJI_RE.test(fpLine)) {
+                    fpLine = fpLine.replace(/^[^\x20-\x7E]+\s*/, '');
+                }
+                fpLine = '\uD83D\uDFE3 ' + fpLine;
+                if (j > 0) html += '<br>\n';
+                html += linkify(fpLine);
+            }
+            html += '</p>\n';
+        }
 
         // Always append subscribe section
         html += '\n<p>&nbsp;</p>\n<p><b>\u2705 SUBSCRIBE</b></p>\n';
