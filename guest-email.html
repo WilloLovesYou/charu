@@ -197,10 +197,11 @@
                 <div class="field">
                     <label>Blog Post URL</label>
                     <div class="link-row">
-                        <input type="text" id="blogUrl" placeholder="https://www.divineamuleto.com/blogs/your-colorful-path-podcast/..." oninput="generateEmail()">
+                        <input type="text" id="blogUrl" placeholder="https://www.divineamuleto.com/blogs/your-colorful-path-podcast/..." oninput="updateBlogTestLink(this.value);generateEmail()">
                         <span class="status status-none" id="blogStatus">--</span>
+                        <a id="blogTestLink" href="#" target="_blank" rel="noopener" title="Test URL" style="display:none;font-size:0.8rem;white-space:nowrap;color:#d49633;text-decoration:none;">Test &#x2197;</a>
                     </div>
-                    <p class="hint">Auto-generated from episode title. Edit if needed.</p>
+                    <p class="hint">Auto-filled from lookup table. Edit if needed.</p>
                 </div>
                 <div class="field">
                     <label>Apple Podcasts</label>
@@ -459,6 +460,18 @@
         } else {
             el.classList.remove('auto-filled');
             updateStatus(statusId, type || 'none');
+        }
+        // Update blog test link
+        if (inputId === 'blogUrl') updateBlogTestLink(value);
+    }
+
+    function updateBlogTestLink(url) {
+        var link = document.getElementById('blogTestLink');
+        if (url) {
+            link.href = url;
+            link.style.display = '';
+        } else {
+            link.style.display = 'none';
         }
     }
 
