@@ -265,6 +265,19 @@
     var BLOG_BASE = 'https://www.divineamuleto.com/blogs/your-colorful-path-podcast/';
     var PODLINK_BASE = 'https://pod.link/' + APPLE_SHOW_ID;
 
+    // Blog post handles — add new episodes here as they drop
+    // Get handles from: https://www.divineamuleto.com/blogs/your-colorful-path-podcast
+    var BLOG_HANDLES = {
+        28: 'e28-sam-yemane-rewire-your-subconscious',
+        27: 'e27-how-to-rebuild-your-life-after-sudden-loss',
+        26: 'e26-formica-coriandolo-damanhur',
+        25: 'e25-can-you-trust-a-meditation-vision',
+        24: 'e24-joh-jarvis-does-meditation-work-in-prisons-real-stories-from',
+        23: 'e23-victoria-salomon-bones-boundaries-and-bridging-energy-body-with',
+        22: 'e22-transforming-burnout-barron-hanson',
+        21: 'e21-daily-meditation-selfbelief-healing-ikshits-journey'
+    };
+
     // YouTube video IDs — add new episodes here as they drop
     // Get IDs from: https://www.youtube.com/@YourColorfulpathwithCharu
     var YOUTUBE_EPISODES = {
@@ -341,8 +354,8 @@
                 var youtubeUrl = ytMatch ? 'https://www.youtube.com/watch?v=' + ytMatch[1]
                     : ytVideoId ? 'https://www.youtube.com/watch?v=' + ytVideoId : '';
 
-                // Build blog post URL handle
-                var handle = buildHandle(title, epNum);
+                // Build blog post URL handle — prefer lookup table, fall back to generated
+                var handle = BLOG_HANDLES[epNum] || buildHandle(title, epNum);
 
                 // Get Apple URL from iTunes data
                 var appleUrl = '';
@@ -509,7 +522,7 @@
             'Instagram: <a href="https://www.instagram.com/DivineAmuleto" target="_blank" rel="noopener">@DivineAmuleto</a><br>' +
             'YouTube: <a href="https://www.youtube.com/@YourColorfulPathwithCharu" target="_blank" rel="noopener">@YourColorfulPathwithCharu</a>' + BR +
             'I will be sending Collaboration Requests on Instagram for cross-promotion, so please be on the lookout to approve them.' + BR +
-            'Thank you for being you and for contributing to the <a href="' + PODLINK_BASE + '" target="_blank" rel="noopener">Your Colorful Path Podcast</a>!';
+            'Thank you for being you and for contributing to the <a href="https://www.divineamuleto.com/blogs/your-colorful-path-podcast" target="_blank" rel="noopener">Your Colorful Path Podcast</a>!';
 
         // Show output
         document.getElementById('outputPanel').style.display = '';
