@@ -181,7 +181,7 @@
         <div class="panel">
             <h2>Episode Details</h2>
             <div id="loadingState" class="loading">
-                <span class="spinner"></span> Loading episodes from Apple Podcasts &amp; RSS feed...
+                <span class="spinner"></span> Loading episodes from Apple Podcasts, Spotify &amp; RSS feed...
             </div>
             <div id="formFields" style="display:none;">
                 <div class="field">
@@ -215,7 +215,7 @@
                         <input type="text" id="spotifyUrl" placeholder="Paste Spotify episode link here (optional)" oninput="generateEmail()">
                         <span class="status status-none" id="spotifyStatus">--</span>
                     </div>
-                    <p class="hint">Open Spotify, find the episode, Share &rarr; Copy Link</p>
+                    <p class="hint">Auto-filled from Spotify. If missing, open Spotify &rarr; Share &rarr; Copy Link</p>
                 </div>
                 <div class="field">
                     <label>YouTube</label>
@@ -259,7 +259,24 @@
     var BLOG_BASE = 'https://www.divineamuleto.com/blogs/your-colorful-path-podcast/';
     var PODLINK_BASE = 'https://pod.link/' + APPLE_SHOW_ID;
 
-    var episodes = []; // merged data from iTunes + RSS
+    // Spotify episode IDs — add new episodes here as they drop
+    // Get IDs from: https://open.spotify.com/show/1x2HAt12L7urPdjPOiUbtj
+    var SPOTIFY_EPISODES = {
+        28: '1sLjSUM1s4Mjj5eziOzUHA',
+        27: '0LMCY4oTFIv55U227V3eB8',
+        26: '4ZdhRF14p6nJZkGT7CaitB',
+        25: '2jxBTwC9Z0gjFyTOPbLicO',
+        24: '1qp8LyvW9EKsiamDpp1LDT',
+        23: '3xIFdDQaGvl63wY30bGvoB',
+        22: '4Mim5keixcTyDZ4zQK2ZGy',
+        21: '6tjBmBVcXtCREYjp3kMSrW',
+        20: '5CVCgrAvx4k6OjuTp0JbUQ',
+        19: '2HvBs3HAP6NiOaCO0ftfs5',
+        17: '3LCLzfGfcjy062XDXNLjBt',
+        16: '7teSNZUIY11tRQExLrU4cC'
+    };
+
+    var episodes = []; // merged data from iTunes + RSS + Spotify
 
     // ── Fetch episode data on page load ──
     (function init() {
@@ -272,12 +289,11 @@
             var itunesData = results[0];
             var rssText = results[1];
 
-            // Parse iTunes episodes
+            // Parse iTunes episodes — key by GUID
             var itunesEps = {};
             for (var i = 0; i < itunesData.results.length; i++) {
                 var item = itunesData.results[i];
                 if (item.wrapperType !== 'podcastEpisode') continue;
-                // Key by episode GUID for matching
                 itunesEps[item.episodeGuid] = {
                     appleUrl: item.trackViewUrl,
                     title: item.trackName
@@ -314,6 +330,10 @@
                     appleUrl = itunesEps[guid].appleUrl;
                 }
 
+                // Get Spotify URL from lookup table
+                var spotifyId = SPOTIFY_EPISODES[epNum];
+                var spotifyUrl = spotifyId ? 'https://open.spotify.com/episode/' + spotifyId : '';
+
                 // Build pod.link per-episode URL
                 var encodedGuid = guid ? btoa(guid) : '';
                 var podlinkUrl = encodedGuid ? (PODLINK_BASE + '/episode/' + encodedGuid) : PODLINK_BASE;
@@ -323,6 +343,7 @@
                     epNum: epNum,
                     guid: guid,
                     appleUrl: appleUrl,
+                    spotifyUrl: spotifyUrl,
                     youtubeUrl: youtubeUrl,
                     blogUrl: BLOG_BASE + handle,
                     podlinkUrl: podlinkUrl,
@@ -374,13 +395,9 @@
         // Fill fields
         setField('blogUrl', ep.blogUrl, 'blogStatus', 'auto');
         setField('appleUrl', ep.appleUrl, 'appleStatus', ep.appleUrl ? 'auto' : 'none');
+        setField('spotifyUrl', ep.spotifyUrl, 'spotifyStatus', ep.spotifyUrl ? 'auto' : 'none');
         setField('youtubeUrl', ep.youtubeUrl, 'youtubeStatus', ep.youtubeUrl ? 'auto' : 'none');
         setField('podlinkUrl', ep.podlinkUrl, 'podlinkStatus', 'auto');
-
-        // Clear spotify (always manual)
-        document.getElementById('spotifyUrl').value = '';
-        document.getElementById('spotifyUrl').classList.remove('auto-filled');
-        updateStatus('spotifyStatus', 'none');
 
         // Try to guess guest name from title (after "with" or "With")
         var nameMatch = ep.title.match(/[Ww]ith\s+(.+?)$/);
