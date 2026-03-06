@@ -269,13 +269,15 @@ Instagram: @handle
     // "ABOUT" can be followed by a name (e.g., "ABOUT CHANOA INEZ")
     // Other keywords must be the whole line (no full sentences)
     function isHeader(line) {
-        // "About [Name]" pattern — always a header
+        // "About [Name]" or "Guest: [Name]" or "Meet your host" patterns
         if (/^[^a-zA-Z]{0,10}ABOUT\b/i.test(line) && !/[.!?]/.test(line)) return true;
+        if (/^[^a-zA-Z]{0,10}GUEST\s*:/i.test(line) && !/[.!?]/.test(line)) return true;
+        if (/^[^a-zA-Z]{0,10}MEET\b/i.test(line) && !/[.!?]/.test(line)) return true;
         // Standard keywords — must be the whole line (optional trailing colon)
         return /^[^a-zA-Z]{0,10}(CHAPTERS?|CHAPTER LIST|GUEST|HOST|KEY TAKEAWAYS?|TOPICS?|CONNECT|LINKS MENTIONED IN THE EPISODE|LINKS|RESOURCES|SHOW NOTES?|IN THIS EPISODE|EPISODE HIGHLIGHTS?|EPISODE OVERVIEW|SUBSCRIBE)\s*:?\s*$/i.test(line);
     }
-    // Still need the capture group version for section type detection
-    var HEADER_KEYWORD_RE = /^[^a-zA-Z]{0,10}(CHAPTERS?|CHAPTER LIST|GUEST|HOST|KEY TAKEAWAYS?|TOPICS?|ABOUT|CONNECT|LINKS MENTIONED IN THE EPISODE|LINKS|RESOURCES|SHOW NOTES?|IN THIS EPISODE|EPISODE HIGHLIGHTS?|EPISODE OVERVIEW|SUBSCRIBE)\b/i;
+    // Capture group version for section type detection
+    var HEADER_KEYWORD_RE = /^[^a-zA-Z]{0,10}(CHAPTERS?|CHAPTER LIST|GUEST|MEET|HOST|KEY TAKEAWAYS?|TOPICS?|ABOUT|CONNECT|LINKS MENTIONED IN THE EPISODE|LINKS|RESOURCES|SHOW NOTES?|IN THIS EPISODE|EPISODE HIGHLIGHTS?|EPISODE OVERVIEW|SUBSCRIBE)\b/i;
 
     var TIMESTAMP_RE = /^[\(\[]?\d{1,2}:\d{2}[\)\]]?\s/;
     var EMOJI_RE = /^[\u2000-\u3300\uD83C-\uDBFF\uDC00-\uDFFF]/;
@@ -328,6 +330,11 @@ Instagram: @handle
                 var keyword = headerMatch[1].toUpperCase();
                 var sectionType = 'other';
                 if (/CHAPTER/.test(keyword)) sectionType = 'chapters';
+                else if (/MEET/.test(keyword)) {
+                    // "Meet your host" → host, "Meet [guest]" → guest
+                    if (/HOST|CHARU/i.test(line)) sectionType = 'host';
+                    else sectionType = 'guest';
+                }
                 else if (/GUEST|ABOUT/.test(keyword)) {
                     // Check if it's about host or guest
                     if (/HOST|CHARU/i.test(line)) sectionType = 'host';
@@ -430,8 +437,11 @@ Instagram: @handle
             if (sections[i].type === 'chapters') hasChapters = true;
             if (sections[i].type === 'guest') {
                 hasGuest = true;
-                // Try to extract guest name from header
-                var gm = (sections[i].header || '').match(/about\s+(.+)/i);
+                // Try to extract guest name from header: "ABOUT Name", "GUEST: Name", "MEET Name"
+                var hdr = (sections[i].header || '');
+                var gm = hdr.match(/about\s+(.+)/i) ||
+                         hdr.match(/guest\s*:\s*(.+)/i) ||
+                         hdr.match(/meet\s+(.+)/i);
                 if (gm) guestName = gm[1].replace(/[:!]/g, '').trim();
             }
             if (sections[i].type === 'host') hasHost = true;
@@ -474,8 +484,10 @@ Instagram: @handle
             else if (sec.type === 'guest') {
                 var cleanName = guestName || '';
                 if (!cleanName) {
-                    // Try to extract from header
-                    var gm = (sec.header || '').match(/about\s+(.+)/i);
+                    var hdr = (sec.header || '');
+                    var gm = hdr.match(/about\s+(.+)/i) ||
+                             hdr.match(/guest\s*:\s*(.+)/i) ||
+                             hdr.match(/meet\s+(.+)/i);
                     if (gm) cleanName = gm[1].replace(/[:!]/g, '').trim();
                 }
                 var headerText = cleanName ? '\uD83D\uDC64 ABOUT OUR GUEST, ' + cleanName.toUpperCase() : '\uD83D\uDC64 ABOUT OUR GUEST';
