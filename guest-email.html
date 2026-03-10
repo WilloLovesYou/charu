@@ -303,6 +303,25 @@
     var PODLINK_BASE = 'https://pod.link/' + APPLE_SHOW_ID;
     var SPOTIFY_SHOW_ID = '1x2HAt12L7urPdjPOiUbtj';
 
+    // YouTube fallback — the RSS feed only returns 15 most recent uploads,
+    // so older videos need this table. Live feed always takes priority.
+    // Also covers videos where the title doesn't include the episode number (e.g. #26).
+    var YOUTUBE_FALLBACK = {
+        1: 'DyGcz3TSBco',
+        2: '5VWYFZUH1QE',
+        3: '9kknhzyPrvc',
+        5: 'u9RcXcCKCUw',
+        8: 'ZxUZnejMZR0',
+        21: '3uo549sW7Bg',
+        22: 'l7z7e_GxIC4',
+        23: '8ELBM924p9c',
+        24: 'G23uyAEXaek',
+        25: '5wYzw4Bvfl4',
+        26: 'qcGUIdIg-3E',
+        27: 'tzQETETsjx4',
+        28: 'wifMp3a7uac'
+    };
+
     // Spotify episode IDs — only needed because Spotify has no public feed
     // To find a new ID: open episode on Spotify → Share → Copy Link → grab the ID after /episode/
     var SPOTIFY_EPISODES = {
@@ -408,8 +427,8 @@
                 var epMatch = title.match(/^#?(\d+)\s/);
                 var epNum = epMatch ? parseInt(epMatch[1]) : 0;
 
-                // YouTube: prefer live feed, then description, then nothing
-                var ytId = ytByEpNum[epNum];
+                // YouTube: prefer live feed, then fallback table, then description
+                var ytId = ytByEpNum[epNum] || YOUTUBE_FALLBACK[epNum];
                 var youtubeUrl = ytId ? 'https://www.youtube.com/watch?v=' + ytId : '';
                 if (!youtubeUrl) {
                     var ytMatch = desc.match(/https?:\/\/(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
