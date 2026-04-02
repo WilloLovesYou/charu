@@ -44,31 +44,37 @@
             border-color: #d49633;
             color: white;
         }
-        .artifact-link {
-            text-align: center;
-            padding: 1rem;
-            font-size: 0.9rem;
-        }
-        .artifact-link a {
-            color: #d49633;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .artifact-link a:hover { text-decoration: underline; }
-        .embed-wrapper {
-            width: 100%;
-            max-width: 900px;
+        .container {
+            max-width: 720px;
             margin: 0 auto;
-            padding: 0 1rem 2rem;
+            padding: 1.5rem;
         }
-        .embed-wrapper iframe {
-            width: 100%;
-            height: calc(100vh - 220px);
-            min-height: 600px;
-            border: 1px solid #e0d5c0;
-            border-radius: 12px;
+        .panel {
             background: white;
+            border-radius: 12px;
+            padding: 2.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            text-align: center;
         }
+        .panel p {
+            color: #9a9590;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+            line-height: 1.7;
+        }
+        .btn-open {
+            display: inline-block;
+            padding: 0.8rem 2rem;
+            background: #d49633;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        .btn-open:hover { background: #b78749; }
     </style>
 </head>
 <body>
@@ -83,12 +89,11 @@
         <a href="caption-generator.html" class="active">Caption Generator</a>
     </nav>
 
-    <div class="artifact-link">
-        <a href="https://claude.ai/public/artifacts/1c0e4518-073f-4e71-a804-34a71c335ec1" target="_blank" rel="noopener">Open artifact in Claude &rarr;</a>
-    </div>
-
-    <div class="embed-wrapper">
-        <iframe src="https://claude.ai/public/artifacts/1c0e4518-073f-4e71-a804-34a71c335ec1" allow="clipboard-write"></iframe>
+    <div class="container">
+        <div class="panel">
+            <p>Generate Instagram captions in Charu's voice using a Claude artifact.<br>Paste a clip transcript, fill in the episode details, and get 3 caption options.</p>
+            <a class="btn-open" href="https://claude.ai/public/artifacts/1c0e4518-073f-4e71-a804-34a71c335ec1" target="_blank" rel="noopener">Open Caption Generator in Claude &rarr;</a>
+        </div>
     </div>
 
     <footer style="text-align:center;padding:2rem;color:#9a9590;font-size:0.85rem;">
