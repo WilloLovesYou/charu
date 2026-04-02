@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <title>Caption Generator — Your Colorful Path</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #faf8f5;
+            color: #2d2a26;
+            line-height: 1.6;
+        }
+        .header {
+            background: #2d2a26;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .header h1 { font-size: 1.5rem; font-weight: 400; }
+        .header p { color: #9a9590; font-size: 0.9rem; margin-top: 0.25rem; }
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            background: #2d2a26;
+            flex-wrap: wrap;
+        }
+        .nav a {
+            color: #faf8f5;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            border: 1px solid #4a4540;
+            transition: all 0.15s;
+        }
+        .nav a:hover, .nav a.active {
+            background: #d49633;
+            border-color: #d49633;
+            color: white;
+        }
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+        .panel {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .panel h2 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #2d2a26;
+        }
+        label {
+            display: block;
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #9a9590;
+            margin-bottom: 0.35rem;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            border: 1px solid #e0d5c0;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-family: inherit;
+            color: #2d2a26;
+            background: #faf8f5;
+            outline: none;
+            box-sizing: border-box;
+        }
+        input:focus, textarea:focus {
+            border-color: #d49633;
+        }
+        textarea {
+            resize: vertical;
+            line-height: 1.7;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .grid-1-2 {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+        .btn-generate {
+            display: block;
+            width: 100%;
+            padding: 0.9rem;
+            background: #d49633;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-generate:hover { background: #b78749; }
+        .btn-generate:disabled {
+            background: #d4963380;
+            cursor: not-allowed;
+        }
+        .btn-copy {
+            background: #faf8f5;
+            color: #b78749;
+            border: 1px solid #d4963360;
+            border-radius: 4px;
+            padding: 0.35rem 0.75rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+        .btn-copy.copied {
+            background: #b78749;
+            color: white;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #d49633;
+            color: #d49633;
+            border-radius: 4px;
+            padding: 0.55rem 1.2rem;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: inherit;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+        .btn-outline:hover { background: #d4963315; }
+        .caption-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .caption-card pre {
+            white-space: pre-wrap;
+            font-family: inherit;
+            font-size: 0.9rem;
+            line-height: 1.75;
+            color: #2d2a26;
+            margin: 0;
+            border-top: 1px solid #d4963325;
+            padding-top: 1rem;
+        }
+        .caption-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+        .caption-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #d49633;
+        }
+        .caption-angle {
+            font-size: 0.8rem;
+            color: #9a9590;
+            margin-left: 0.5rem;
+            font-style: italic;
+        }
+        .error { color: #c0392b; font-size: 0.85rem; text-align: center; margin-bottom: 1rem; }
+        .results-actions {
+            text-align: center;
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            margin-top: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .api-hint {
+            font-size: 0.75rem;
+            color: #9a9590;
+            margin-top: 0.35rem;
+        }
+        .api-hint a { color: #d49633; text-decoration: none; }
+        .api-hint a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Instagram Caption Generator</h1>
+        <p>Trained on Charu's voice &bull; @yourcolorfulpath</p>
+    </div>
+    <nav class="nav">
+        <a href="index.html">Libsyn &amp; YouTube Show Notes Formatter</a>
+        <a href="bookmarklet.html">Blog Post Bookmarklet</a>
+        <a href="guest-email.html">Guest Email Generator</a>
+        <a href="caption-generator.html" class="active">Caption Generator</a>
+    </nav>
+
+    <div class="container">
+        <!-- API Key -->
+        <div class="panel">
+            <h2>API Key</h2>
+            <label for="apiKey">Anthropic API Key</label>
+            <input type="password" id="apiKey" placeholder="sk-ant-..." />
+            <p class="api-hint">Your key stays in your browser and is never stored. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">Get a key</a></p>
+        </div>
+
+        <!-- Episode Details -->
+        <div class="panel">
+            <h2>Episode Details</h2>
+            <div class="grid-1-2">
+                <div>
+                    <label for="episodeNum">Episode #</label>
+                    <input id="episodeNum" placeholder="28" />
+                </div>
+                <div>
+                    <label for="episodeTitle">Episode Title</label>
+                    <input id="episodeTitle" placeholder="Rewire Your Subconscious with Sam Yemane" />
+                </div>
+            </div>
+            <div class="grid-2">
+                <div>
+                    <label for="guestName">Guest Full Name</label>
+                    <input id="guestName" placeholder="Sam Yemane (or leave blank for solo)" />
+                </div>
+                <div>
+                    <label for="guestHandle">Guest IG Handle</label>
+                    <input id="guestHandle" placeholder="@samyemane" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Transcript -->
+        <div class="panel">
+            <h2>Clip Transcript</h2>
+            <textarea id="transcript" rows="10" placeholder="Paste transcript here..."></textarea>
+        </div>
+
+        <div id="errorMsg" class="error" style="display:none;"></div>
+
+        <button class="btn-generate" id="generateBtn" onclick="generate()">Generate Captions</button>
+
+        <!-- Results -->
+        <div id="results" style="display:none; margin-top:1.5rem;"></div>
+    </div>
+
+    <footer style="text-align:center;padding:2rem;color:#9a9590;font-size:0.85rem;">
+        <p>Created by Willo Sana for Charu<br>Divine Amuleto &bull; Your Colorful Path Podcast</p>
+        <p>&copy; 2026 Willo&amp;Co LLC &bull; <a href="https://EvolveYourGenius.com" target="_blank" rel="noopener" style="color:#d49633;text-decoration:none;">EvolveYourGenius.com</a></p>
+    </footer>
+
+    <script>
+    var VOICE_SYSTEM_PROMPT = "You are a ghostwriter for Charu Boeckel, host of the podcast \"Your Colorful Path with Charu\" and founder of Divine Amuleto spiritual fine jewelry. You write her Instagram captions in her exact voice.\n\nCHARU'S VOICE — STUDY THESE PATTERNS CAREFULLY:\n\nTONE & PERSONALITY:\n- Warm, raw, spiritually grounded, enthusiastic, vulnerable\n- Writes like she's texting a close friend who's on a healing journey\n- Unpolished on purpose — she doesn't over-edit, she's real\n- Passionate: she uses \"!\" frequently and means it\n- Uses \"I\" and \"my\" a lot — first-person, personal always\n- Calls her audience \"you\" directly, often \"this is for YOU\"\n\nSTRUCTURE PATTERNS:\n- Often opens with a HOOK: bold statement, rhetorical question, or emoji burst\n- Short sentences. Fragments are fine and intentional.\n- Heavy line breaks — almost every thought gets its own line\n- Body = context + value from the episode\n- Always closes with a CTA before hashtags\n\nLANGUAGE SHE USES:\n- \"Hope Shot\" (her signature phrase for inspiration)\n- \"This episode is for you\" or \"this one's for you\"\n- \"Do NOT miss\", \"tune in\", \"you HAVE TO hear this\"\n- \"Drop a [number] and I'll send you a link\"\n- \"Share this with [specific person type]\"\n- \"Your Colorful Path\" always written out in full\n- \"DM me\", \"drop it below\", \"tag someone who needs this\"\n- Spiritual words: divine, high-frequency, transformation, healing, alignment, soul, meditation, calling, higher self, sacred\n\nCAPITALIZATION:\n- ALL CAPS on key words for emphasis: \"DO NOT\", \"THIS\", \"YOU\", \"THE ONE\", \"LIVE\"\n- She mixes standard and caps mid-sentence for punch\n- Episode numbers written as: Ep 22, EP#26, Episode 1️⃣3️⃣, #2️⃣1️⃣ (varies, be natural)\n\nEMOJIS:\n- Uses them liberally as bullet points, emphasis, and emotion\n- Common ones: 🎙️🎧✨💥🔥💗🤜🏽🦋🌀💌📩🍎🎤🩸🏵️🧧\n- Usually 1-3 per paragraph, sometimes starts lines with them\n- The rainbow colors 🔴🟠🟡🟢🔵🟣 are her brand signature\n\nHASHTAGS:\n- ALWAYS use EXACTLY 5 hashtags — no more, no fewer\n- Always includes: #yourcolorfulpath or #yourcolorfulpathwithcharu\n- Always includes: #divineamuleto\n- Fill remaining slots with topic-specific tags based on episode content\n- Place all 5 hashtags at the end of the caption\n\nGUEST MENTIONS:\n- Always tags guest's IG handle with @ when known\n- Often thanks the guest personally\n\nCTA STYLES SHE USES:\n- \"Drop a [NUMBER] and I'll send you a link!\"\n- \"DM me [NUMBER] for the link\"\n- \"❤️ drop me a heart and I will send you a link\"\n- \"Share this with someone who [specific reason]\"\n- \"💌 SHARE this with your BFF on their [journey]\"\n- Available on Apple and Spotify — she always mentions platforms\n\nWHAT TO AVOID:\n- Do NOT use em dashes (—) — she doesn't use them\n- Do NOT be polished or corporate\n- Do NOT write long paragraphs — she never does\n- Do NOT use more than 5 hashtags\n- Do NOT write generic spiritual fluff — ground everything in what was actually said in the transcript\n\nOUTPUT FORMAT:\nGenerate exactly 3 caption options. Label them clearly:\nOPTION 1: [angle/hook type]\n[caption]\n\nOPTION 2: [angle/hook type]\n[caption]\n\nOPTION 3: [angle/hook type]\n[caption]\n\nEach caption should feel distinctly different in angle and hook, but all in her voice.";
+
+    function parseCaptions(text) {
+        var blocks = [];
+        var regex = /OPTION\s+\d+:\s*([^\n]*)\n([\s\S]*?)(?=OPTION\s+\d+:|$)/gi;
+        var match;
+        while ((match = regex.exec(text)) !== null) {
+            var angle = match[1].trim();
+            var content = match[2].trim();
+            if (content) blocks.push({ angle: angle, content: content });
+        }
+        if (blocks.length === 0 && text.trim()) {
+            blocks.push({ angle: "Generated Caption", content: text.trim() });
+        }
+        return blocks;
+    }
+
+    function showError(msg) {
+        var el = document.getElementById('errorMsg');
+        el.textContent = msg;
+        el.style.display = msg ? 'block' : 'none';
+    }
+
+    async function generate() {
+        var apiKey = document.getElementById('apiKey').value.trim();
+        var transcript = document.getElementById('transcript').value.trim();
+        if (!apiKey) { showError('Please enter your Anthropic API key.'); return; }
+        if (!transcript) { showError('Please paste a transcript first.'); return; }
+        showError('');
+
+        var btn = document.getElementById('generateBtn');
+        btn.disabled = true;
+        btn.textContent = "Generating in Charu's Voice...";
+        document.getElementById('results').style.display = 'none';
+
+        var epNum = document.getElementById('episodeNum').value.trim() || '??';
+        var epTitle = document.getElementById('episodeTitle').value.trim() || "Your Colorful Path with Charu";
+        var guest = document.getElementById('guestName').value.trim();
+        var handle = document.getElementById('guestHandle').value.trim();
+
+        var userMessage = "Write 3 Instagram captions for this podcast clip.\n\n" +
+            "Episode: #" + epNum + " — " + epTitle + "\n" +
+            (guest ? "Guest: " + guest + "\n" : "Solo episode\n") +
+            (handle ? "Guest IG handle: " + handle + "\n" : "") +
+            "\nTRANSCRIPT:\n" + transcript +
+            "\n\nRemember: exactly 5 hashtags (no more, no fewer), no em dashes, written in Charu's voice.";
+
+        try {
+            var res = await fetch("https://api.anthropic.com/v1/messages", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-api-key": apiKey,
+                    "anthropic-version": "2023-06-01",
+                    "anthropic-dangerous-direct-browser-access": "true"
+                },
+                body: JSON.stringify({
+                    model: "claude-sonnet-4-20250514",
+                    max_tokens: 1500,
+                    system: VOICE_SYSTEM_PROMPT,
+                    messages: [{ role: "user", content: userMessage }]
+                })
+            });
+            var data = await res.json();
+            if (data.error) {
+                showError(data.error.message || "API error. Check your key and try again.");
+                btn.disabled = false;
+                btn.textContent = "Generate Captions";
+                return;
+            }
+            var raw = (data.content || []).map(function(b) { return b.text || ''; }).join('\n');
+            var captions = parseCaptions(raw);
+            renderCaptions(captions);
+        } catch (e) {
+            showError("Something went wrong. Please try again.");
+        }
+        btn.disabled = false;
+        btn.textContent = "Generate Captions";
+    }
+
+    function renderCaptions(captions) {
+        var container = document.getElementById('results');
+        container.innerHTML = '';
+        container.style.display = 'block';
+
+        captions.forEach(function(cap, idx) {
+            var card = document.createElement('div');
+            card.className = 'caption-card';
+            card.innerHTML =
+                '<div class="caption-header">' +
+                    '<div><span class="caption-label">Option ' + (idx + 1) + '</span>' +
+                    (cap.angle ? '<span class="caption-angle">' + escapeHtml(cap.angle) + '</span>' : '') +
+                    '</div>' +
+                    '<button class="btn-copy" onclick="copySingle(this,' + idx + ')">Copy</button>' +
+                '</div>' +
+                '<pre>' + escapeHtml(cap.content) + '</pre>';
+            container.appendChild(card);
+        });
+
+        var actions = document.createElement('div');
+        actions.className = 'results-actions';
+        actions.innerHTML =
+            '<button class="btn-outline" onclick="generate()">Regenerate</button>' +
+            '<button class="btn-copy" id="copyAllBtn" onclick="copyAll()">Copy All 3</button>';
+        container.appendChild(actions);
+
+        window._captions = captions;
+    }
+
+    function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+    }
+
+    function copySingle(btn, idx) {
+        var text = window._captions[idx].content;
+        copyText(text, btn);
+    }
+
+    function copyAll() {
+        var all = window._captions.map(function(c, i) {
+            return '--- OPTION ' + (i + 1) + ': ' + c.angle + ' ---\n\n' + c.content;
+        }).join('\n\n\n');
+        var btn = document.getElementById('copyAllBtn');
+        copyText(all, btn, 'Copied All!', 'Copy All 3');
+    }
+
+    function copyText(text, btn, successLabel, defaultLabel) {
+        successLabel = successLabel || 'Copied!';
+        defaultLabel = defaultLabel || 'Copy';
+        try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(function() {
+                    flashCopied(btn, successLabel, defaultLabel);
+                }).catch(function() { fallbackCopy(text, btn, successLabel, defaultLabel); });
+            } else {
+                fallbackCopy(text, btn, successLabel, defaultLabel);
+            }
+        } catch(e) {
+            fallbackCopy(text, btn, successLabel, defaultLabel);
+        }
+    }
+
+    function fallbackCopy(text, btn, successLabel, defaultLabel) {
+        var el = document.createElement('textarea');
+        el.value = text;
+        el.style.position = 'fixed';
+        el.style.opacity = '0';
+        document.body.appendChild(el);
+        el.focus();
+        el.select();
+        try { document.execCommand('copy'); flashCopied(btn, successLabel, defaultLabel); } catch(e) {}
+        document.body.removeChild(el);
+    }
+
+    function flashCopied(btn, successLabel, defaultLabel) {
+        btn.textContent = successLabel;
+        btn.classList.add('copied');
+        setTimeout(function() {
+            btn.textContent = defaultLabel;
+            btn.classList.remove('copied');
+        }, 2000);
+    }
+    </script>
+</body>
+</html>

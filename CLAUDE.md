@@ -9,12 +9,14 @@ Live at: `https://willolovesyou.github.io/charu/`
 - **index.html** — Libsyn & YouTube Show Notes Formatter (default/home page)
 - **bookmarklet.html** — Blog Post Bookmarklet (Libsyn → Shopify)
 - **guest-email.html** — Guest Email Generator
+- **caption-generator.html** — Instagram Caption Generator (calls Anthropic API with user's key)
 
 ## Nav order (consistent across all pages)
 
 1. Libsyn & YouTube Show Notes Formatter
 2. Blog Post Bookmarklet
 3. Guest Email Generator
+4. Caption Generator
 
 ## Key conventions
 
